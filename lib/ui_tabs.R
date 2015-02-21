@@ -45,10 +45,6 @@ output$ui_net_worth <- renderUI({
   
 
   list(
-  
-    ##| Filters
-    ## Put a date range picker or a slider. 
-    ## Data will be by month by default orginially. 
     
     ##| Chart
     fluidRow(
@@ -64,10 +60,6 @@ output$ui_net_worth <- renderUI({
     ),
     hr(),
     
-    ##| Scatter Chart
-    ## - Make a scatter of previous net worth vs net worth change
-    ## - I would hope to see the bubbles go up and to the right
-    
     ##| Table
     fluidRow(
       column(12,
@@ -76,29 +68,6 @@ output$ui_net_worth <- renderUI({
     )
   )
 })
-
-##|---------
-##| Net Income
-##|---------
-
-# output$ui_net_income <- renderUI({
-  
-#   list(
-    
-#     ##| Chart
-#     fluidRow(
-#       column(12,
-#         h3("Cumulative Net Income YOY", align = 'center'),
-#         h5("This shows my cumulative net income growth by year. ", align = 'center'),
-#         showOutput("plot_cum_net_income", "nvd3"),
-#         hr(),
-#         h3("Cumulative Income YOY", align = 'center'),
-#         h5("This shows my cumulative income by year. ", align = 'center'),
-#         showOutput("plot_cum_income", "nvd3")
-#       )
-#     )
-#   )
-# })
 
 ##|---------
 ##| Savings
@@ -249,38 +218,3 @@ output$ui_giving <- renderUI({
     )
   )
 }) 
-
-
-# output$ui_trans <- renderUI({
-  
-#   list(
-    
-#     ##| Chart
-#     fluidRow(
-#       column(12,
-#         h3("Cumulative Saving YOY", align = 'center'),
-#         showOutput("plot_saving", "nvd3"),
-#         hr(),
-
-#         h3("Cumulative Income YOY", align = 'center'),
-#         showOutput("plot_income", "nvd3"),
-#         hr(),
-
-#         h3("Cumulative Giving YOY", align = 'center'),
-#         showOutput("plot_giving", "nvd3"),
-#         hr(),
-
-#         h3("Cumulative Spending YOY", align = 'center'),
-#         showOutput("plot_cum_spending_year", "nvd3"),
-        
-#         h3("Cumulative Monthly Spending YOY", align = 'center'),
-#         h5("This shows my cumulative monthly spending by year. ", align = 'center'),
-#         showOutput("plot_cum_spending_month", "nvd3"),
-        
-#         h3("Total Monthly Spending YOY", align = 'center'),
-#         h5("This shows my total spending by month by year. ", align = 'center'),
-#         showOutput("plot_total_spending_month", "nvd3")
-#       )
-#     )  
-#   )
-# })

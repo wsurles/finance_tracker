@@ -14,6 +14,4 @@ shinyServer(function(input, output, session) {
   
 })
 
-#changing things
-
 
