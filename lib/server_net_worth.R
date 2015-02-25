@@ -12,7 +12,6 @@ crunchDataNetWorth <- function(df_worth) {
       year = year(date),
       Net = as.numeric(gsub('\\$|,','',Net))
     ) %>%
-    filter(year >= 2011) %>%
     mutate(
       diff_net = c(Net[1],diff(Net))
       ) %>%

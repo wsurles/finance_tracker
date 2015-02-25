@@ -11,7 +11,6 @@ crunchDataSavings <- function(df_trans) {
       yday = yday(date),
       year = year(date)
     ) %>%
-    filter(year >= 2011) %>%
     filter(!(Category %in% c('Transfer','Credit Card Payment',
                              'Hide from Budgets & Trends',
                              'Transfer for Cash Spending',
