@@ -6999,3 +6999,11 @@ i[class^="icon-"] {
   *background-color: #0088cc;
   border: 1px solid #0088cc;
 }
+
+/*Stuff I have added*/
+
+
+#plot_slug_dist, #plot_slug_dist .rChart {
+  height: 900px;
+  width: 1000px;
+}
