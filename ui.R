@@ -16,7 +16,8 @@ shinyUI(
     tabPanel("Savings", value = "savings", uiOutput("ui_savings")),
     tabPanel("Income", value = "income", uiOutput("ui_income")),
     tabPanel("Spending", value = "spending", uiOutput("ui_spending")),
-    tabPanel("Giving", value = "giving", uiOutput("ui_giving"))
+    tabPanel("Giving", value = "giving", uiOutput("ui_giving")),
+    tabPanel("Transactions", value = "transactions", uiOutput("ui_transactions"))
   
 	)
 )

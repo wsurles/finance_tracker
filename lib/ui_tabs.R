@@ -218,3 +218,26 @@ output$ui_giving <- renderUI({
     )
   )
 }) 
+
+##|---------
+##| Transactions
+##|---------
+
+output$ui_transactions <- renderUI({
+  list(
+    fluidRow(
+      column(12,
+        h3("Transactions Explore", align = 'center'),
+        showOutput("plot_transactions_explore", "nvd3"),
+        hr()
+      )
+    ),
+    fluidRow(
+      column(12, 
+        h3("Table of Transactions", align = 'center'),
+        column(10, offset = 1, dataTableOutput('table_transactions'))
+      )      
+    )
+  )
+}) 
+

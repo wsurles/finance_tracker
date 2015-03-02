@@ -14,7 +14,7 @@ getDataWorth <- reactive({
   } else {
     isolate({
       df_worth <- read.csv(file_worth$datapath, stringsAsFactors = F)
-      # setwd("~/Dev/non_work_projects/my_life/finance")
+      # setwd("~/Dev/non_work_projects/finance_tracker")
       # df_worth <- read.csv('../data/trends.csv', stringsAsFactors = F)
     })
   }
@@ -33,7 +33,7 @@ getData <- reactive({
   } else {
     isolate({
       df_trans <- read.csv(file_trans$datapath, stringsAsFactors = F)
-      # setwd("~/Dev/non_work_projects/my_life/finance")
+      # setwd("~/Dev/non_work_projects/finance_tracker")
 	    # df_trans <- read.csv('data/transactions.csv', stringsAsFactors = F)
     })
   }
