@@ -13,4 +13,4 @@ vignettes/*.html
 vignettes/*.pdf
 
 # shiny apps deploy files
-*.dcf
+shinyapps/
