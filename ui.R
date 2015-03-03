@@ -3,6 +3,7 @@ shinyUI(
 	
   navbarPage(
   
+    tags$head(tags$style("tfoot {display: table-header-group;}")),
     id = "nbp",
 	title = "Finance", 
 	theme = "bootstrap.css",
@@ -11,6 +12,8 @@ shinyUI(
               column(12, offset = 0, 
                 span(strong("CONFIDENTIAL"), style = "font-family:arial;color:black;font-size:22px;"))),
     
+    
+
     tabPanel("Upload", value = "upload", uiOutput("ui_upload")),
     tabPanel("Net Worth", value = "net_worth", uiOutput("ui_net_worth")),
     tabPanel("Savings", value = "savings", uiOutput("ui_savings")),
