@@ -1,8 +1,49 @@
 ##| --------------------------------------------
+##| Categories
+##| --------------------------------------------
+
+cat_exclude <- c(
+  'Transfer',
+  'Credit Card Payment',
+  'Hide from Budgets & Trends',
+  'Transfer for Cash Spending',
+  'Cash & ATM',
+  'Withdrawal',
+  'Sell',
+  'Buy',
+  'Deposit'
+  )
+
+cat_taxes <- (
+  'Federal Tax', 
+  'State Tax'
+  )
+
+cat_income <- c(
+  'Bonus', 
+  'Interest Income',                    
+  'Paycheck', 
+  'Reimbursement', 
+  'Rental Income', 
+  'Returned Purchase', 
+  'Credit Card Cashback', 
+  'Gift Received', 
+  'Side Job'
+  )
+
+cat_giving <- c(
+  'Charity',
+  'Gift',
+  'Church Tithe',
+  'Missions Support'
+  )
+
+##| --------------------------------------------
 ##| Crunch Data Functions
 ##| --------------------------------------------
 
-crunchDataSavings <- function(df_trans) {
+
+crunchData <- function(df_trans) {
   
   ## Filter
   df_trans2 <- df_trans %>%
@@ -11,7 +52,9 @@ crunchDataSavings <- function(df_trans) {
       yday = yday(date),
       year = year(date)
     ) %>%
-    filter(!(Category %in% savings_exclude))
+    filter(
+      !(Category %in% cat_exclude),
+      (Category %in% cat_include))
 
   ## Expand Dates
   grid <- expand.grid(year = unique(df_trans2$year), yday = seq(1:365))
@@ -40,59 +83,13 @@ crunchDataSavings <- function(df_trans) {
       cum_month_savings_str = paste0('$', prettyNum(round(cum_month_savings), big.mark=",",scientific=F))
     ) %>%
     arrange(date)
-    # filter(date <= today())
   
   df_trans2 <- as.data.frame(df_trans2)
-  
-  # ## Expand Dates
-  # df_trans2 <- df_trans %>%
-  #   mutate(
-  #     date = as.Date(Date, format = "%m/%d/%Y"),
-  #     yday = yday(date),
-  #     year = year(date)
-  #   )
-  
-  # grid <- expand.grid(year = unique(df_trans2$year), yday = seq(1:365))
-  # df <- merge(grid, df_trans2, by=c("year","yday"), all.x = T)
-  
-  # ## Crunch
-  # df_trans2 <- df %>%
-  #   mutate(
-  #     date = as.Date(paste0(year,'-',yday), format = "%Y-%j"),
-  #     date_str = as.character(date),
-  #     yday = yday(date),
-  #     mday = mday(date),
-  #     month = month(date),
-  #     year = year(date),
-  #     Amount = ifelse(Transaction.Type == 'debit', Amount * -1, Amount),
-  #     Amount = ifelse(is.na(Amount), 0, Amount)
-  #   ) %>%
-  #   filter(year >= 2011) %>%
-  #   filter(!(Category %in% c('Transfer','Credit Card Payment',
-  #                            'Hide from Budgets & Trends',
-  #                            'Transfer for Cash Spending',
-  #                            'Cash & ATM','Withdrawal',
-  #                            'Sell','Buy','Deposit',
-  #                            'Federal Tax', 'State Tax'))
-  #   ) %>%
-  #   arrange(date) %>%
-  #   group_by(year) %>%
-  #   mutate(
-  #     cum_year_savings = cumsum(Amount),
-  #     cum_year_savings_str = paste0('$', prettyNum(round(cum_year_savings), big.mark=",",scientific=F))
-  #   ) %>%
-  #   group_by(year, month) %>%
-  #   mutate(
-  #     cum_month_savings = cumsum(Amount),
-  #     cum_month_savings_str = paste0('$', prettyNum(round(cum_month_savings), big.mark=",",scientific=F))
-  #   )
-
-  # df_trans2 <- as.data.frame(df_trans2)
   
   return(df_trans2)
 }
 
-filterSavings <- function(df_trans2) {
+filter <- function(df_trans2) {
     
   df <- df_trans2
   df$show <- TRUE
@@ -127,7 +124,7 @@ filterSavings <- function(df_trans2) {
 ##| Plot Functions
 ##| --------------------------------------------
 
-createPlotCumSavingsYear <- function(df_trans2) {
+createPlotCumYear <- function(df_trans2) {
   
   ## Select on the values I need in chart so it loads faster
   df_trans3 <- df_trans2 %>%
@@ -150,7 +147,7 @@ createPlotCumSavingsYear <- function(df_trans2) {
   return(n)  
 }
 
-createPlotTotalSavingsMonth <- function(df_trans2) {
+createPlotTotalMonth <- function(df_trans2) {
  
   df_trans3 <- df_trans2 %>%
     group_by(year, month) %>%
@@ -172,7 +169,7 @@ createPlotTotalSavingsMonth <- function(df_trans2) {
   return(n)
 }
 
-createPlotCumSavingsMonth <- function(df_trans2) {
+createPlotCumMonth <- function(df_trans2) {
  
   df_trans3 <- df_trans2 %>%
     # filter(date <= today()) %>%
@@ -200,7 +197,7 @@ createPlotCumSavingsMonth <- function(df_trans2) {
 ##| Render UI Functions
 ##| --------------------------------------------
 
-output$savings_year <- renderUI({
+output$year <- renderUI({
   
   if (is.null(input$file_transactions)) {
   } else {
@@ -218,7 +215,7 @@ output$savings_year <- renderUI({
   }
 })
 
-output$savings_month <- renderUI({
+output$month <- renderUI({
   
   if (is.null(input$file_transactions)) {
   } else {
@@ -241,7 +238,7 @@ output$savings_month <- renderUI({
 ##| Render Output Functions
 ##| --------------------------------------------
 
-output$plot_savings_yoy <- renderChart2({    
+output$plot_yoy <- renderChart2({    
   
   if (is.null(input$file_transactions)) {
     n <- nPlot(y ~ x, data = data.frame(x=1,y=2), type = "scatter")
@@ -254,7 +251,7 @@ output$plot_savings_yoy <- renderChart2({
   return(n)
 })
 
-output$plot_total_savings_month <- renderChart2({    
+output$plot_total_month <- renderChart2({    
   
   if (is.null(input$file_transactions)) {
     n <- nPlot(y ~ x, data = data.frame(x=1,y=2), type = "scatter")
@@ -267,7 +264,7 @@ output$plot_total_savings_month <- renderChart2({
   return(n)
 }) 
 
-output$plot_cum_savings_month <- renderChart2({    
+output$plot_cum_month <- renderChart2({    
   
   if (is.null(input$file_transactions)) {
     n <- nPlot(y ~ x, data = data.frame(x=1,y=2), type = "scatter")
@@ -281,7 +278,7 @@ output$plot_cum_savings_month <- renderChart2({
   return(n)
 })  
 
-output$table_savings <- renderDataTable({
+output$table <- renderDataTable({
 
   if (is.null(input$file_transactions)) {
     

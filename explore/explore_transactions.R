@@ -2,16 +2,15 @@ library(rCharts)
 library(lubridate)
 library(dplyr)
 
+##|----------------
+##| Get Data
+##|----------------
 setwd("~/Dev/non_work_projects/finance_tracker")
 df_trans <- read.csv('data/transactions.csv', stringsAsFactors = F)
 
-head(df_trans)
-str(df_trans)
-
-str(df2)
-head(df2,20)
-
-
+##|----------------
+##| Crunch Data
+##|----------------
 
 df2 <- df_trans %>%
   filter(!(Category %in% c('Transfer','Credit Card Payment',
@@ -57,12 +56,11 @@ df5 <- df4 %>%
   ) %>%
   data.frame()
 
-
-df2 <- crunch_trans(df_trans)
-str(df2)
-head(df2, 100)
-
-p <- nPlot(sum_amount ~ count, group = 'year', data = df2, type = 'scatterChart')
+head(df5)
+##|----------------
+##| Scatter Chart
+##|----------------
+p <- nPlot(sum_amount ~ count, group = 'year', data = df5, type = 'scatterChart')
 p$xAxis(axisLabel = 'Number of Transactions')
 p$yAxis(axisLabel = 'Total Spending')
 p$chart(size = '#! function(d){return d.sum_amount} !#')
@@ -77,7 +75,10 @@ p$chart(tooltipContent = "#!
         !#")
 p
 
-##| Create plot
+
+##|----------------
+##| Bar Chart
+##|----------------
 p2 <- nPlot(sum_amount ~ Category, group = 'year', data = df5, type = "multiBarHorizontalChart")
 p2$chart(margin = list(top = 100, right = 20, bottom = 50, left = 180), height=2000, width=800)
 p2
