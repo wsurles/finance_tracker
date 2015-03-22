@@ -43,12 +43,12 @@ crunchDataSpending <- function(df_trans) {
       Amount = ifelse(Transaction.Type == 'credit', Amount * -1, Amount),
       Amount = ifelse(is.na(Amount), 0, Amount)
     ) %>%
-    group_by(year) %.%
+    group_by(year) %>%
     mutate(
       cum_year_spending = cumsum(Amount),
       cum_year_spending_str = paste0('$', prettyNum(round(cum_year_spending), big.mark=",",scientific=F))
     ) %>%
-    group_by(year, month) %.%
+    group_by(year, month) %>%
     mutate(
       cum_month_spending = cumsum(Amount),
       cum_month_spending_str = paste0('$', prettyNum(round(cum_month_spending), big.mark=",",scientific=F))
@@ -80,7 +80,7 @@ crunchDataSpending <- function(df_trans) {
   #     year = year(date),
   #     Amount = ifelse(Transaction.Type == 'credit', Amount * -1, Amount),
   #     Amount = ifelse(is.na(Amount), 0, Amount)
-  #   ) %.%
+  #   ) %>%
   #   filter(year >= 2011) %>%
   #   filter(!(Category %in% c('Transfer','Credit Card Payment',
   #                            'Hide from Budgets & Trends',
@@ -96,12 +96,12 @@ crunchDataSpending <- function(df_trans) {
   #                            'Side Job'))) %>%
   #   filter(!(Category %in% c('Charity','Gift','Church Tithe','Missions Support'))) %>%
   #   arrange(date) %>%
-  #   group_by(year) %.%
+  #   group_by(year) %>%
   #   mutate(
   #     cum_year_spending = cumsum(Amount),
   #     cum_year_spending_str = paste0('$', prettyNum(round(cum_year_spending), big.mark=",",scientific=F))
   #   ) %>%
-  #   group_by(year, month) %.%
+  #   group_by(year, month) %>%
   #   mutate(
   #     cum_month_spending = cumsum(Amount),
   #     cum_month_spending_str = paste0('$', prettyNum(round(cum_month_spending), big.mark=",",scientific=F))
@@ -167,7 +167,7 @@ createPlotCumSpendingYear <- function(df_trans2) {
 createPlotTotalSpendingMonth <- function(df_trans2) {
  
   df_trans3 <- df_trans2 %>%
-    group_by(year, month) %.%
+    group_by(year, month) %>%
     summarize(
       spending = max(cum_month_spending)
     )

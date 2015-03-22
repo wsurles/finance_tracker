@@ -15,7 +15,7 @@ crunchDataNetWorth <- function(df_worth) {
     mutate(
       diff_net = c(Net[1],diff(Net))
       ) %>%
-    group_by(year) %.%
+    group_by(year) %>%
     mutate(
       sum_net = cumsum(diff_net) 
     )

@@ -95,7 +95,7 @@ createPlotCumSpendingYear <- function(df_trans2) {
 createPlotTotalSpendingMonth <- function(df_trans2) {
  
   df_trans3 <- df_trans2 %>%
-    group_by(year, month) %.%
+    group_by(year, month) %>%
     summarize(
       spending = max(cum_month_spending)
     )
