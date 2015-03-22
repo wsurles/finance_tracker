@@ -3,7 +3,6 @@ shinyUI(
 	
   navbarPage(
   
-    tags$head(tags$style("tfoot {display: table-header-group;}")),
     id = "nbp",
 	title = "Finance", 
 	theme = "bootstrap.css",
@@ -20,7 +19,9 @@ shinyUI(
     tabPanel("Income", value = "income", uiOutput("ui_income")),
     tabPanel("Spending", value = "spending", uiOutput("ui_spending")),
     tabPanel("Giving", value = "giving", uiOutput("ui_giving")),
-    tabPanel("Transactions", value = "transactions", uiOutput("ui_transactions"))
+    tabPanel("Transactions", value = "transactions", uiOutput("ui_transactions")),
+
+    tags$head(tags$style("tfoot {display: table-header-group;}"))
   
 	)
 )

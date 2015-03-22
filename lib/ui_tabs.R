@@ -73,40 +73,74 @@ output$ui_net_worth <- renderUI({
 ##| Savings
 ##|---------
 
-output$ui_savings <- renderUI({
-  list(
-    fluidRow(
-      column(12,
-        h3("Cumulative Savings by Year", align = 'center'),
-        showOutput("plot_savings_yoy", "nvd3"),
-        hr(),
+output$ui_savings <- renderUI({list(
 
-        h3("Total Monthly Savings", align = 'center'),
-        showOutput("plot_total_savings_month", "nvd3"),
-        hr(),
+    tabsetPanel("savings", type = "pills", id = 'savings',
 
-        h3("Cumulative Monthly Savings", align = 'center')
-      )
-    ),
-    fluidRow(
-      column(12, 
-        column(3, offset = 3, uiOutput("savings_year")),
-        column(3, offset = 0, uiOutput("savings_month"))
-      )
-    ),
-    fluidRow(
-      column(12, 
-        showOutput("plot_cum_savings_month", "nvd3")
-      )
-    ),
-    fluidRow(
-      column(12, 
-        h3("Table of Transactions", align = 'center'),
-        column(10, offset = 1, dataTableOutput('table_savings'))
-      )      
-    )
-  )
-})  
+      tabPanel("Yearly", value = 'savings_cum_year',
+        fluidPage(
+          fluidRow(
+            column(12,
+              h3("Cumulative Savings by Year", align = 'center'),
+              showOutput("plot_savings_yoy", "nvd3"))))),
+      
+      tabPanel("Monthly", value = 'savings_monthly',
+        fluidPage(
+          fluidRow(
+            column(12, 
+              column(3, offset = 3, uiOutput("savings_year")),
+              column(3, offset = 0, uiOutput("savings_month")))),
+          fluidRow(
+            column(12, 
+              h3("Cumulative Monthly Savings", align = 'center'),
+              showOutput("plot_cum_savings_month", "nvd3"))),
+          hr(),
+          fluidRow(
+            column(12,
+              h3("Total Monthly Savings", align = 'center'),
+              showOutput("plot_total_savings_month", "nvd3"))))),
+          
+      
+      tabPanel("Transactions", value = 'savings_transactions',
+        fluidPage(
+          fluidRow(
+            column(12, 
+              h3("Table of Transactions", align = 'center'),
+              column(10, offset = 1, dataTableOutput('table_savings')))))))
+)})
+
+#     fluidRow(
+#       column(12,
+#         h3("Cumulative Savings by Year", align = 'center'),
+#         showOutput("plot_savings_yoy", "nvd3"),
+#         hr(),
+
+#         h3("Total Monthly Savings", align = 'center'),
+#         showOutput("plot_total_savings_month", "nvd3"),
+#         hr(),
+
+#         h3("Cumulative Monthly Savings", align = 'center')
+#       )
+#     ),
+#     fluidRow(
+#       column(12, 
+#         column(3, offset = 3, uiOutput("savings_year")),
+#         column(3, offset = 0, uiOutput("savings_month"))
+#       )
+#     ),
+#     fluidRow(
+#       column(12, 
+#         showOutput("plot_cum_savings_month", "nvd3")
+#       )
+#     ),
+#     fluidRow(
+#       column(12, 
+#         h3("Table of Transactions", align = 'center'),
+#         column(10, offset = 1, dataTableOutput('table_savings'))
+#       )      
+#     )
+#   )
+# })  
 
 ##|---------
 ##| Income
