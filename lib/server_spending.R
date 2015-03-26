@@ -19,7 +19,7 @@ crunchDataSpending <- function(df_trans) {
                              'Sell','Buy','Deposit',
                              'Federal Tax', 'State Tax'
                              ))) %>%       
-    filter(!(Category %in% c('Bonus', 'Interest Income', 
+    filter(!(Category %in% c('Income', 'Bonus', 'Interest Income', 
                              'Paycheck', 'Reimbursement', 
                              'Rental Income', 'Returned Purchase', 
                              'Credit Card Cashback', 'Gift Received', 
