@@ -12,7 +12,7 @@ crunchDataIncome <- function(df_trans) {
       yday = yday(date),
       year = year(date)
     ) %>%
-    filter(Category %in% c('Bonus', 'Interest Income', 
+    filter(Category %in% c('Income', 'Bonus', 'Interest Income', 
                              'Paycheck', 'Reimbursement', 
                              'Rental Income', 'Returned Purchase', 
                              'Credit Card Cashback', 'Gift Received', 
