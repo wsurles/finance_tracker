@@ -34,12 +34,12 @@ crunchDataIncome <- function(df_trans) {
       Amount = ifelse(Transaction.Type == 'debit', Amount * -1, Amount),
       Amount = ifelse(is.na(Amount), 0, Amount)
     ) %>%
-    group_by(year) %.%
+    group_by(year) %>%
     mutate(
       cum_year_income = cumsum(Amount),
       cum_year_income_str = paste0('$', prettyNum(round(cum_year_income), big.mark=",",scientific=F))
     ) %>%
-    group_by(year, month) %.%
+    group_by(year, month) %>%
     mutate(
       cum_month_income = cumsum(Amount),
       cum_month_income_str = paste0('$', prettyNum(round(cum_month_income), big.mark=",",scientific=F))
@@ -71,7 +71,7 @@ crunchDataIncome <- function(df_trans) {
   #     year = year(date),
   #     Amount = ifelse(Transaction.Type == 'debit', Amount * -1, Amount),
   #     Amount = ifelse(is.na(Amount), 0, Amount)
-  #   ) %.%
+  #   ) %>%
   #   filter(year >= 2011) %>%
   #   filter(Category %in% c('Bonus', 'Interest Income', 
   #                            'Paycheck', 'Reimbursement', 
@@ -80,12 +80,12 @@ crunchDataIncome <- function(df_trans) {
   #                            'Side Job')
   #   ) %>%
   #   arrange(date) %>%
-  #   group_by(year) %.%
+  #   group_by(year) %>%
   #   mutate(
   #     cum_year_income = cumsum(Amount),
   #     cum_year_income_str = paste0('$', prettyNum(round(cum_year_income), big.mark=",",scientific=F))
   #   ) %>%
-  #   group_by(year, month) %.%
+  #   group_by(year, month) %>%
   #   mutate(
   #     cum_month_income = cumsum(Amount),
   #     cum_month_income_str = paste0('$', prettyNum(round(cum_month_income), big.mark=",",scientific=F))
@@ -150,7 +150,7 @@ createPlotIncome <- function(df_trans2) {
 createPlotTotalIncomeMonth <- function(df_trans2) {
  
   df_trans3 <- df_trans2 %>%
-    group_by(year, month) %.%
+    group_by(year, month) %>%
     summarize(
       income = max(cum_month_income)
     )

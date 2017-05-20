@@ -29,12 +29,12 @@ crunchDataGiving <- function(df_trans) {
       year = year(date),
       Amount = ifelse(is.na(Amount), 0, Amount)
     ) %>%
-    group_by(year) %.%
+    group_by(year) %>%
     mutate(
       cum_year_giving = cumsum(Amount),
       cum_year_giving_str = paste0('$', prettyNum(round(cum_year_giving), big.mark=",",scientific=F))
     ) %>%
-    group_by(year, month) %.%
+    group_by(year, month) %>%
     mutate(
       cum_month_giving = cumsum(Amount),
       cum_month_giving_str = paste0('$', prettyNum(round(cum_month_giving), big.mark=",",scientific=F))
@@ -103,7 +103,7 @@ createPlotGiving <- function(df_trans2) {
 createPlotTotalGivingMonth <- function(df_trans2) {
  
   df_trans3 <- df_trans2 %>%
-    group_by(year, month) %.%
+    group_by(year, month) %>%
     summarize(
       giving = max(cum_month_giving)
     )
