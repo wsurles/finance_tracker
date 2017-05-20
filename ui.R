@@ -1,22 +1,28 @@
 
 shinyUI(
-	
-  navbarPage(
-  
-    id = "nbp",
-	title = "Finance", 
-	theme = "bootstrap.css",
-    collapsable = TRUE,
-    footer = fluidRow(hr(),
-              column(12, offset = 0, 
-                span(strong("CONFIDENTIAL"), style = "font-family:arial;color:black;font-size:22px;"))),
-    
-    tabPanel("Upload", value = "upload", uiOutput("ui_upload")),
-    tabPanel("Net Worth", value = "net_worth", uiOutput("ui_net_worth")),
-    tabPanel("Savings", value = "savings", uiOutput("ui_savings")),
-    tabPanel("Income", value = "income", uiOutput("ui_income")),
-    tabPanel("Spending", value = "spending", uiOutput("ui_spending")),
-    tabPanel("Giving", value = "giving", uiOutput("ui_giving"))
-  
-	)
+  dashboardPage(
+    dashboardHeader(title = 'Surlygon Finances'),
+    dashboardSidebar(
+      sidebarMenu(
+        menuItem("Load Transactions", tabName = 'load_transactions'),
+        menuItem("Cash Flow",
+          menuSubItem("All",      tabName = "all"),
+          menuSubItem("Income",   tabName = "income"),
+          menuSubItem("Spending", tabName = "spending"),
+          menuSubItem("Giving",   tabName = "giving"),
+          menuSubItem("Saving",   tabName = "saving")
+        )
+      )
+    ),
+    dashboardBody(
+      includeCSS("www/custom.css"),
+      tabItems(
+        tabItem(tabName = "load_transactions", uiOutput("ui_upload")),
+        tabItem(tabName = "all",               uiOutput("ui_savings")),
+        tabItem(tabName = "income",            uiOutput("ui_income")),
+        tabItem(tabName = "spending",          uiOutput("ui_spending")),
+        tabItem(tabName = "giving",            uiOutput("ui_giving"))
+      )
+    )
+  )
 )

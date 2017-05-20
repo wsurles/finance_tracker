@@ -1,3 +1,10 @@
+
+## Run the app locally
+# library(shiny)
+# runApp(launch.browser = T)
+
+library(shiny)
+library(shinydashboard)
 library(rCharts)
 library(lubridate)
 library(dplyr)
