@@ -18,10 +18,10 @@ shinyUI(
       includeCSS("www/custom.css"),
       tabItems(
         tabItem(tabName = "load_transactions", uiOutput("ui_upload")),
-        tabItem(tabName = "all",               uiOutput("ui_savings")),
-        tabItem(tabName = "income",            uiOutput("ui_income")),
-        tabItem(tabName = "spending",          uiOutput("ui_spending")),
-        tabItem(tabName = "giving",            uiOutput("ui_giving"))
+        tabItem(tabName = "all",               moduleCashFlowUI("all"))
+        # tabItem(tabName = "income",            uiOutput("ui_income")),
+        # tabItem(tabName = "spending",          uiOutput("ui_spending")),
+        # tabItem(tabName = "giving",            uiOutput("ui_giving"))
       )
     )
   )

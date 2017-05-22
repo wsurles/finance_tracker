@@ -151,6 +151,17 @@ createPlotCumSavingsYear <- function(df_trans2) {
           '<p><b>'  + d.point.cum_year_savings_str + '</b></p>'
         }
         !#")
+  n$xAxis(tickValues = "#! function (x) {    
+    tickvalues = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+    return tickvalues;
+  } !#")
+  
+  # n$xAxis(tickFormat = "#! function (x) {
+  # tickformat = ['0-1000', '1000-1500', '1500-1700', '1700-1820', '1820-1913', 
+  # '1913-1950', '1950-1970', '1970-1990', '1990-2012', '2012-2030', '2030-2050', 
+  # '2050-2070', '2070-2100'];
+  # return tickformat[x-1];
+  # } !#")
 
   return(n)  
 }
@@ -207,20 +218,17 @@ createPlotCumSavingsMonth <- function(df_trans2) {
 
 output$savings_year <- renderUI({
   
-  if (is.null(input$file_transactions)) {
-  } else {
-    df_trans <- getData()
-    df_trans2 <- crunchDataSavings(df_trans)
-    
-    year_list <- sort(unique(df_trans2$year), decreasing = T)
-    year_selected <- max(year_list)
-    
-    selectizeInput(inputId = "savings_year",
-                label = h4("Year:"),
-                choices = year_list,
-                multiple = TRUE,
-                selected = year_selected)
-  }
+  df_trans <- getData()
+  df_trans2 <- crunchDataSavings(df_trans)
+  
+  year_list <- sort(unique(df_trans2$year), decreasing = T)
+  year_selected <- max(year_list)
+  
+  selectizeInput(inputId = "savings_year",
+              label = h4("Year:"),
+              choices = year_list,
+              multiple = TRUE,
+              selected = year_selected)
 })
 
 output$savings_month <- renderUI({

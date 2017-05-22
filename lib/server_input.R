@@ -11,11 +11,10 @@ getDataWorth <- reactive({
   file_worth <- input$file_worth
   
   if(is.null(file_worth) || is.na(file_worth)) {
+    ## do nothing
   } else {
     isolate({
       df_worth <- read.csv(file_worth$datapath, stringsAsFactors = F)
-      # setwd("~/Dev/non_work_projects/my_life/finance")
-      # df_worth <- read.csv('../data/trends.csv', stringsAsFactors = F)
     })
   }
   return(df_worth)
@@ -25,21 +24,22 @@ getDataWorth <- reactive({
 ##| Transactions
 ##| -------------
 
-getData <- reactive({
-  
-  file_trans <- input$file_transactions
-  
-  if(is.null(file_trans) || is.na(file_trans)) {
-  } else {
-    isolate({
-      df_trans <- read.csv(file_trans$datapath, stringsAsFactors = F)
-      # setwd("~/Dev/non_work_projects/my_life/finance")
-	    # df_trans <- read.csv('data/transactions.csv', stringsAsFactors = F)
-    })
-  }
-
-  return(df_trans)
-})
+# getData <- reactive({
+#   
+#   file_trans <- input$file_transactions
+# 
+#   if(is.null(file_trans) || is.na(file_trans)) {
+# 
+#   } else {
+#     isolate({
+#       df_trans <- read.csv(file_trans$datapath, stringsAsFactors = F)
+#     })
+#   }
+# 
+#   # df_trans <- read.csv('data/transactions.csv', stringsAsFactors = F)
+#   # print(head(df_trans))
+#   return(df_trans)
+# })
 
 
 
@@ -70,16 +70,16 @@ output$text_worth <- renderPrint({
 ##| Transactions
 ##| -------------
 
-output$text_trans <- renderPrint({
-  
-  if (is.null(input$file_transactions)) {
-    
-    return('No Transactions Data Yet')
-  
-  } else {
-  
-    df_trans <- getData()
-    return(head(df_trans[,1:7]))
-  }
-  
-})
+# output$text_trans <- renderPrint({
+#   
+#   if (is.null(input$file_transactions)) {
+#     
+#     return('No Transactions Data Yet')
+#   
+#   } else {
+#   
+#     df_trans <- getData()
+#     return(head(df_trans[,1:7]))
+#   }
+#   
+# })
