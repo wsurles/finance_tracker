@@ -3,6 +3,16 @@ moduleCashFlowUI <- function(id) {
   ns <- NS(id)
   
   tagList(
+    box(
+      title = "Filters",
+      width = NULL,
+      solidHeader = TRUE,
+      collapsible = TRUE,
+      fluidRow(
+        column(4, offset = 2, uiOutput(ns("select_category_type")))
+        # column(4, offset = 0, uiOutput(ns("select_category")))
+      )
+    ), 
     fluidRow(
       column(12, offset = 0, align = 'center',
         h3("Cumulative Cash Flow by Year"),
@@ -44,15 +54,27 @@ moduleCashFlow <- function(input, output, session) {
   
   ns <- session$ns
 
-  getData <- function() {
+  ##| --------------------------------------------
+  ##| Get Data Functions
+  ##| --------------------------------------------
+  
+  getData <- reactive({
     df_trans <- read.csv('data/transactions.csv', stringsAsFactors = F)
-  }
+  })
   
   ##| --------------------------------------------
   ##| Crunch Data Functions
   ##| --------------------------------------------
   
-  crunchData <- function(df) {
+  filterData <- reactive({
+    
+    print(input$select_category_type)
+    
+    validate(
+      need(!is.null(input$select_category_type), "Loading Data ...")
+    )
+    
+    df_trans <- getData()
     
     list_exclude_all <- c('Transfer',
                           'Credit Card Payment',
@@ -65,6 +87,63 @@ moduleCashFlow <- function(input, output, session) {
                           'Deposit',
                           'Federal Tax', 
                           'State Tax')
+  
+    list_include_income <- c('Income', 
+                             'Bonus', 
+                             'Interest Income', 
+                             'Paycheck', 
+                             'Reimbursement', 
+                             'Rental Income', 
+                             'Returned Purchase', 
+                             'Credit Card Cashback', 
+                             'Gift Received', 
+                             'Side Job')
+    
+    list_include_giving <- c('Charity',
+                             'Gift',
+                             'Church Tithe',
+                             'Missions Support')
+    
+    list_include_spending <- setdiff(
+      unique(df_trans$Category), 
+      c(list_exclude_all, list_include_income, list_include_giving)
+      )
+    
+    list_include_all <- setdiff(
+      unique(df_trans$Category), 
+      c(list_exclude_all)
+      )
+    
+    if (input$select_category_type == 'All') {
+      
+      list_include <- list_include_all
+    
+    } else if (input$select_category_type == 'Income') {
+      
+      list_include <- list_include_income
+    
+    } else if (input$select_category_type == 'Spending') {
+      
+      list_include <- list_include_spending
+    
+    } else if (input$select_category_type == 'Giving') {
+      
+      list_include <- list_include_giving
+    
+    }
+    
+    df_trans2 <- df_trans %>%
+      filter(Category %in% list_include)
+      
+    return(df_trans2)
+      
+  })
+  
+  getDates <- reactive({
+    
+    df_trans <- getData()
+    
+    head(df_trans)
     
     unique_years <- 
       df_trans$Date %>%
@@ -72,24 +151,32 @@ moduleCashFlow <- function(input, output, session) {
       year(.) %>%
       unique(.)
     
-    df_dates <- expand.grid(year = unique_years, yday = seq(1:366))
+    df_dates <- expand.grid(year = unique_years, yday = seq(1:366)) %>%
+      mutate(
+        date = as.Date(paste0(year,'-',yday), format = "%Y-%j"),
+        date_str = as.character(date),
+        month = month(date),
+        mday = mday(date)
+        )
+    
+    return(df_dates)
+  })
+    
+  crunchData <- reactive({
+    
+    df_trans <- filterData()
+    df_dates <- getDates()
     
     df_trans2 <- df_trans %>%
       filter(!(Category %in% list_exclude_all)) %>%
       mutate(
-        Date = as.Date(Date, format = "%m/%d/%Y"),
-        year = year(Date),
-        yday = yday(Date)
+        date = as.Date(Date, format = "%m/%d/%Y")
         ) %>%
-      right_join(df_dates, by=c("year","yday")) %>%
+      right_join(df_dates, by="date") %>%
       arrange(year, yday) %>%
       mutate(
         Amount = ifelse(Transaction.Type == 'debit', Amount * -1, Amount),
-        Amount = ifelse(is.na(Amount), 0, Amount),
-        date = as.Date(paste0(year,'-',yday), format = "%Y-%j"),
-        month = month(date),
-        mday = mday(date),
-        date_str = as.character(date)
+        Amount = ifelse(is.na(Amount), 0, Amount)
       ) %>%
       group_by(year) %>%
       mutate(
@@ -104,10 +191,12 @@ moduleCashFlow <- function(input, output, session) {
       data.frame()
       
     return(df_trans2)
-  }
+  })
   
-  filterSavings <- function(df_trans2) {
+  filterSavings <- reactive({
       
+    df_trans2 <- crunchData()
+    
     df <- df_trans2
     df$show <- TRUE
     
@@ -135,13 +224,15 @@ moduleCashFlow <- function(input, output, session) {
     
     return(df)
   
-  }
+  })
   
   ##| --------------------------------------------
-  ##| Plot Functions
+  ##| Chart and Table Functions
   ##| --------------------------------------------
   
-  createPlotCummByYear <- function(df_trans2) {
+  createPlotCummByYear <- reactive({
+    
+    df_trans2 <- crunchData()
     
     ## Select on the values I need in chart so it loads faster
     df_trans3 <- df_trans2 %>%
@@ -174,10 +265,12 @@ moduleCashFlow <- function(input, output, session) {
     # n
   
     return(n)  
-  }
+  })
   
-  createPlotTotalSavingsMonth <- function(df_trans2) {
+  createPlotTotalSavingsMonth <- reactive({
    
+    df_trans2 <- crunchData()
+    
     df_trans3 <- df_trans2 %>%
       group_by(year, month) %>%
       summarize(
@@ -196,10 +289,12 @@ moduleCashFlow <- function(input, output, session) {
     n$set(disabled = exclude_year)
     
     return(n)
-  }
+  })
   
-  createPlotCumSavingsMonth <- function(df_trans2) {
+  createPlotCumSavingsMonth <- reactive({
    
+    df_trans2 <- filterSavings()
+    
     df_trans3 <- df_trans2 %>%
       # filter(date <= today()) %>%
       mutate(
@@ -220,85 +315,13 @@ moduleCashFlow <- function(input, output, session) {
           }
           !#")
     return(n)
-  }
   
-  ##| --------------------------------------------
-  ##| Render Input Functions
-  ##| --------------------------------------------
-  
-  output$select_year <- renderUI({
-    
-    df_trans <- getData()
-    df_trans2 <- crunchData(df_trans)
-    
-    year_list <- sort(unique(df_trans2$year), decreasing = T)
-    year_selected <- max(year_list)
-    
-    container <- selectizeInput(
-      inputId = ns("year"),
-      label = h4("Year:"),
-      choices = year_list,
-      multiple = TRUE,
-      selected = year_selected
-    )
-    
-    return(container)
   })
   
-  output$select_month <- renderUI({
+  createDataTable <- reactive({
     
-    df_trans <- getData()
-    df_trans2 <- crunchData(df_trans)
+    df3 <- filterSavings()
     
-    month_list <- sort(unique(df_trans2$month))
-    month_selected <- seq(month(today()), month(today())-2)
-    
-    container <- selectizeInput(
-      inputId = ns("month"),
-      label = h4("Month:"),
-      choices = month_list,
-      multiple = TRUE,
-      selected = month_selected
-    )
-    
-    return(container)
-  })
-  
-  ##| --------------------------------------------
-  ##| Render Output Functions
-  ##| --------------------------------------------
-  
-  output$plot_cumm_by_year <- renderChart2({    
-    
-    df_trans <- getData()
-    df_trans2 <- crunchData(df_trans)
-    n <- createPlotCummByYear(df_trans2)  
-    return(n)
-  })
-  
-  output$plot_monthly_by_year <- renderChart2({    
-    
-    df_trans <- getData()
-    df_trans2 <- crunchData(df_trans)
-    n <- createPlotTotalSavingsMonth(df_trans2)  
-    return(n)
-  }) 
-  
-  output$plot_cumm_by_month <- renderChart2({    
-    
-    df_trans <- getData()
-    df_trans2 <- crunchData(df_trans)
-    df3 <- filterSavings(df_trans2)
-    n <- createPlotCumSavingsMonth(df3)  
-    return(n)
-  })  
-  
-  output$table_transactions <- renderDataTable({
-  
-    df_trans <- getData()
-    df_trans2 <- crunchData(df_trans)
-    df3 <- filterSavings(df_trans2)
-  
     df_table <- df3 %>%
       select(date , year, month, Category, Description, Amount, Notes) %>%
       filter(!(is.na(Description))) %>%
@@ -314,5 +337,90 @@ moduleCashFlow <- function(input, output, session) {
         autoWidth = FALSE
       )
     )
+    
+    return(dt)
+  })
+  
+  ##| --------------------------------------------
+  ##| Render Input Functions
+  ##| --------------------------------------------
+  
+  output$select_category_type <- renderUI({
+    
+    choices_list <- c('All', 'Income', 'Spending', 'Giving')
+    selected_default <- 'All'
+    
+    container <- selectizeInput(
+      inputId = ns("select_category_type"),
+      label = h4("Category Type:"),
+      choices = choices_list,
+      selected = selected_default,
+      multiple = FALSE
+    )
+    
+    return(container)
+  })
+  
+  output$select_year <- renderUI({
+    
+    df_dates <- getDates()
+    
+    choices_list <- sort(unique(df_dates$year), decreasing = T)
+    selected_default <- max(choices_list)
+    
+    container <- selectizeInput(
+      inputId = ns("year"),
+      label = h4("Year:"),
+      choices = choices_list,
+      selected = selected_default,
+      multiple = TRUE
+    )
+    
+    return(container)
+  })
+  
+  output$select_month <- renderUI({
+    
+    df_dates <- getDates()
+    
+    choices_list <- sort(unique(df_dates$month))
+    selected_default <- seq(month(today()), month(today())-2)
+    
+    container <- selectizeInput(
+      inputId = ns("month"),
+      label = h4("Month:"),
+      choices = choices_list,
+      selected = selected_default,
+      multiple = TRUE
+    )
+    
+    return(container)
+  })
+  
+  ##| --------------------------------------------
+  ##| Render Output Functions
+  ##| --------------------------------------------
+  
+  output$plot_cumm_by_year <- renderChart2({    
+    
+    n <- createPlotCummByYear()  
+    return(n)
+  })
+  
+  output$plot_monthly_by_year <- renderChart2({    
+    
+    n <- createPlotTotalSavingsMonth()  
+    return(n)
+  }) 
+  
+  output$plot_cumm_by_month <- renderChart2({    
+    
+    n <- createPlotCumSavingsMonth()  
+    return(n)
+  })  
+  
+  output$table_transactions <- renderDataTable({
+  
+    createDataTable()
   }, escape = FALSE, option=list(scrollX = TRUE))
 }

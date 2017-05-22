@@ -38,3 +38,37 @@ runApp(shinyApp(
     })
   }
 ))
+
+##-------------------------------------
+
+shiny::runGitHub("rhandsontable", "jrowen", subdir = "inst/examples/rhandsontable_corr")
+
+
+##----------------------------
+
+devtools::install_github('rstudio/DT@feature/editor')
+
+library(shiny)
+library(DT)
+shinyApp(
+  ui = fluidPage(
+    DT::dataTableOutput('x1')
+  ),
+  server = function(input, output, session) {
+    x = iris
+    x$Date = Sys.time() + seq_len(nrow(x))
+    output$x1 = DT::renderDataTable(x, selection = 'none')
+    
+    proxy = dataTableProxy('x1')
+    
+    observeEvent(input$x1_cell_edit, {
+      info = input$x1_cell_edit
+      str(info)
+      i = info$row
+      j = info$col
+      v = info$value
+      x[i, j] <<- DT:::coerceValue(v, x[i, j])
+      replaceData(proxy, x, resetPaging = FALSE)
+    })
+  }
+)
