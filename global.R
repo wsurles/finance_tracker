@@ -21,6 +21,7 @@ library(DT)
 
 source('lib/module_cash_flow_year.R', local = T)
 source('lib/module_cash_flow_quarter.R', local = T)
+source('lib/module_cash_flow_month.R', local = T)
 
 Sys.setenv(TZ='GMT')
 
@@ -57,6 +58,7 @@ getDates <- reactive({
       date_str = as.character(date),
       month = month(date),
       mday = mday(date),
+      year_month = str_c(year, month, sep="-"),
       quarter = quarter(date)
     ) %>%
     group_by(year, quarter) %>%

@@ -9,6 +9,7 @@ shinyServer(function(input, output, session) {
   
   callModule(moduleCashFlowYear, "year")
   callModule(moduleCashFlowQuarter, "quarter")
+  callModule(moduleCashFlowMonth, "month")
   
 })
 
