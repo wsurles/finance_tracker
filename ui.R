@@ -5,14 +5,16 @@ shinyUI(
     dashboardSidebar(
       sidebarMenu(
         menuItem("Load Transactions", tabName = 'load_transactions'),
-        menuItem("Cash Flow", tabName = 'cash_flow')
+        menuItem("Cash Flow Year", tabName = 'cash_flow_year'),
+        menuItem("Cash Flow Quarter", tabName = 'cash_flow_quarter')
       )
     ),
     dashboardBody(
       includeCSS("www/custom.css"),
       tabItems(
         tabItem(tabName = "load_transactions", uiOutput("ui_upload")),
-        tabItem(tabName = "cash_flow", moduleCashFlowUI("all"))
+        tabItem(tabName = "cash_flow_year", moduleCashFlowYearUI("year")),
+        tabItem(tabName = "cash_flow_quarter", moduleCashFlowQuarterUI("quarter"))
       )
     )
   )

@@ -1,5 +1,5 @@
 
-moduleCashFlowUI <- function(id) {
+moduleCashFlowYearUI <- function(id) {
   ns <- NS(id)
   
   tagList(
@@ -9,8 +9,8 @@ moduleCashFlowUI <- function(id) {
       solidHeader = TRUE,
       collapsible = TRUE,
       fluidRow(
-        column(4, offset = 2, uiOutput(ns("select_category_type")))
-        # column(4, offset = 0, uiOutput(ns("select_category")))
+        column(3, offset = 3, uiOutput(ns("select_category_type"))),
+        column(3, offset = 0, uiOutput(ns("select_category")))
       )
     ), 
     fluidRow(
@@ -50,7 +50,7 @@ moduleCashFlowUI <- function(id) {
   )
 }
 
-moduleCashFlow <- function(input, output, session) {
+moduleCashFlowYear <- function(input, output, session) {
   
   ns <- session$ns
 
@@ -58,23 +58,23 @@ moduleCashFlow <- function(input, output, session) {
   ##| Get Data Functions
   ##| --------------------------------------------
   
-  getData <- reactive({
-    df_trans <- read.csv('data/transactions.csv', stringsAsFactors = F)
-  })
-  
+  # getData <- reactive({
+  #   df_trans <- read.csv('data/transactions.csv', stringsAsFactors = F)
+  # })
+  # 
   ##| --------------------------------------------
   ##| Crunch Data Functions
   ##| --------------------------------------------
   
-  filterData <- reactive({
-    
-    print(input$select_category_type)
+  filterCategoryType <- reactive({
     
     validate(
       need(!is.null(input$select_category_type), "Loading Data ...")
     )
     
     df_trans <- getData()
+    
+    ##| Filter Category Type
     
     list_exclude_all <- c('Transfer',
                           'Credit Card Payment',
@@ -139,11 +139,31 @@ moduleCashFlow <- function(input, output, session) {
       
   })
   
+  filterCategory <- reactive({
+    
+    validate(
+      need(!is.null(input$select_category), "Loading Data ...")
+    )
+    
+    df_trans <- filterCategoryType()
+    
+    if (input$select_category == 'All Categories') {
+      
+      df_trans2 <- df_trans
+      
+    } else {
+      
+      df_trans2 <- df_trans %>%
+        filter(Category %in% input$select_category)
+    }
+    
+    return(df_trans2)
+  })
+    
+  
   getDates <- reactive({
     
     df_trans <- getData()
-    
-    head(df_trans)
     
     unique_years <- 
       df_trans$Date %>%
@@ -164,11 +184,10 @@ moduleCashFlow <- function(input, output, session) {
     
   crunchData <- reactive({
     
-    df_trans <- filterData()
+    df_trans <- filterCategory()
     df_dates <- getDates()
     
     df_trans2 <- df_trans %>%
-      filter(!(Category %in% list_exclude_all)) %>%
       mutate(
         date = as.Date(Date, format = "%m/%d/%Y")
         ) %>%
@@ -274,7 +293,7 @@ moduleCashFlow <- function(input, output, session) {
     df_trans3 <- df_trans2 %>%
       group_by(year, month) %>%
       summarize(
-        savings = max(cum_month_cash_flow)
+        sum_cash_flow = sum(Amount)
       )
     
     grid <- expand.grid(year = unique(df_trans3$year), month = as.numeric(seq(1:12)))
@@ -282,7 +301,7 @@ moduleCashFlow <- function(input, output, session) {
     df[is.na(df)] <- 0
     df <- arrange(df, year, month)
     
-    n <- nPlot(savings ~ month, data = df, group = "year", type = 'multiBarChart')
+    n <- nPlot(sum_cash_flow ~ month, data = df, group = "year", type = 'multiBarChart')
     
     unique_year <- unique(df$year)
     exclude_year <- unique_year[unique_year != tail(unique_year,1)]
@@ -334,7 +353,9 @@ moduleCashFlow <- function(input, output, session) {
       style = "bootstrap",
       fillContainer = FALSE,
       options = list(
-        autoWidth = FALSE
+        autoWidth = FALSE,
+        escape = FALSE, 
+        scrollX = TRUE
       )
     )
     
@@ -360,6 +381,32 @@ moduleCashFlow <- function(input, output, session) {
     
     return(container)
   })
+  
+  output$select_category <- renderUI({
+    
+    validate(
+      need(!is.null(input$select_category_type), "Loading Data...")
+    )
+    
+    df_trans <- filterCategoryType()
+    
+    df_category <- df_trans %>% 
+      arrange(Category) %>% 
+      distinct(Category)
+    
+    list_choices <- c('All Categories', df_category)
+    selected_default <- 'All Categories'
+    
+    container <- selectizeInput(
+      inputId = ns('select_category'),
+      label = h4("Category:"),
+      choices = list_choices,
+      selected = selected_default,
+      multiple = FALSE
+    )
+    
+    return(container)
+  }) 
   
   output$select_year <- renderUI({
     
@@ -422,5 +469,5 @@ moduleCashFlow <- function(input, output, session) {
   output$table_transactions <- renderDataTable({
   
     createDataTable()
-  }, escape = FALSE, option=list(scrollX = TRUE))
+  })
 }
