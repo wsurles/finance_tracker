@@ -22,6 +22,7 @@ library(DT)
 source('lib/module_cash_flow_year.R', local = T)
 source('lib/module_cash_flow_quarter.R', local = T)
 source('lib/module_cash_flow_month.R', local = T)
+source('lib/module_cash_flow_category.R', local = T)
 
 Sys.setenv(TZ='GMT')
 
@@ -39,7 +40,9 @@ to_jsdate <- function(date_){
 ##| --------------------------------------------
 
 getData <- reactive({
+  
   df_trans <- read.csv('data/transactions.csv', stringsAsFactors = F)
+
 })
 
 getDates <- reactive({
@@ -67,8 +70,6 @@ getDates <- reactive({
       year_quarter = str_c(year, quarter, sep="-")
     ) %>%
     data.frame()
-  
-  head(df_dates)
   
   return(df_dates)
 })

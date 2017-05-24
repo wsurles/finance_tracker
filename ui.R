@@ -5,9 +5,12 @@ shinyUI(
     dashboardSidebar(
       sidebarMenu(
         menuItem("Load Transactions", tabName = 'load_transactions'),
-        menuItem("Cash Flow Year", tabName = 'cash_flow_year'),
-        menuItem("Cash Flow Quarter", tabName = 'cash_flow_quarter'),
-        menuItem("Cash Flow Month", tabName = 'cash_flow_month')
+        menuItem("Cash Flow",
+          menuSubItem("By Year", tabName = 'cash_flow_year'),
+          menuSubItem("By Quarter", tabName = 'cash_flow_quarter'),
+          menuSubItem("By Month", tabName = 'cash_flow_month'),
+          menuSubItem("By Category", tabName = 'cash_flow_category')
+        )
       )
     ),
     dashboardBody(
@@ -16,7 +19,8 @@ shinyUI(
         tabItem(tabName = "load_transactions", uiOutput("ui_upload")),
         tabItem(tabName = "cash_flow_year", moduleCashFlowYearUI("year")),
         tabItem(tabName = "cash_flow_quarter", moduleCashFlowQuarterUI("quarter")),
-        tabItem(tabName = "cash_flow_month", moduleCashFlowMonthUI("month"))
+        tabItem(tabName = "cash_flow_month", moduleCashFlowMonthUI("month")),
+        tabItem(tabName = "cash_flow_category", moduleCashFlowCategoryUI("category"))
       )
     )
   )
