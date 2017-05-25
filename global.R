@@ -39,37 +39,51 @@ to_jsdate <- function(date_){
 ##| Get Data Functions
 ##| --------------------------------------------
 
-getData <- reactive({
+getDataTrans <- reactive({
   
   df_trans <- read.csv('data/transactions.csv', stringsAsFactors = F)
-
+  
 })
 
-getDates <- reactive({
+getDataCategoryDim <- reactive({
+  
+  df_category_dim <- read.csv('data/category_dimension - Sheet1.csv', stringsAsFactors = F)
+  
+})
+
+getDataDates <- reactive({
   
   df_trans <- getData()
   
-  unique_years <- 
-    df_trans$Date %>%
-    as.Date(., format = "%m/%d/%Y") %>%
-    year(.) %>%
-    unique(.)
+  str(df_trans)
+
+  dates <- as.Date(df_trans$Date, format = "%m/%d/%Y")
+  min_date <- min(dates) %>% year(.) %>% str_c(.,"-01-01") %>% as.Date(.)
+  max_date <- max(dates) %>% year(.) %>% str_c(.,"-12-31") %>% as.Date(.)
   
-  df_dates <- expand.grid(year = unique_years, yday = seq(1:366)) %>%
-    mutate(
-      date = as.Date(paste0(year,'-',yday), format = "%Y-%j"),
-      date_str = as.character(date),
-      month = month(date),
-      mday = mday(date),
-      year_month = str_c(year, month, sep="-"),
-      quarter = quarter(date)
-    ) %>%
-    group_by(year, quarter) %>%
-    mutate(
-      qday = rank(yday),
-      year_quarter = str_c(year, quarter, sep="-")
-    ) %>%
-    data.frame()
+  df_dates <- data.frame(date = seq(min_date, max_date, 1))
   
+  # unique_years <- 
+  #   df_trans$Date %>%
+  #   as.Date(., format = "%m/%d/%Y") %>%
+  #   year(.) %>%
+  #   unique(.)
+  
+  # df_dates <- expand.grid(year = unique_years, yday = seq(1:366)) %>%
+  #   mutate(
+  #     date = as.Date(paste0(year,'-',yday), format = "%Y-%j"),
+  #     date_str = as.character(date),
+  #     month = month(date),
+  #     mday = mday(date),
+  #     year_month = str_c(year, month, sep="-"),
+  #     quarter = quarter(date)
+  #   ) %>%
+  #   group_by(year, quarter) %>%
+  #   mutate(
+  #     qday = rank(yday),
+  #     year_quarter = str_c(year, quarter, sep="-")
+  #   ) %>%
+  #   data.frame()
+  # 
   return(df_dates)
 })

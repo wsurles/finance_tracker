@@ -151,19 +151,47 @@ moduleCashFlowQuarter <- function(input, output, session) {
     
   crunchData <- reactive({
     
-    df_trans <- filterCategory()
-    df_dates <- filterQuarter()
+    # df_trans <- filterCategory()
+    # df_dates <- filterQuarter()
+    
+    df_trans <- getDataTrans()
+    df_category_dim <- getDataCategoryDim()
+    df_dates <- getDataDates()
+    
+    head(df_trans2)
     
     df_trans2 <- df_trans %>%
+      ## Join dates and category dimensions
+      left_join(df_category_dim, by=c("Category" = "category")) %>%
+      filter(
+        category_type %in% input$select_category_type
+      ) %>%
       mutate(
         date = as.Date(Date, format = "%m/%d/%Y")
-        ) %>%
+      ) %>%
       right_join(df_dates, by="date") %>%
+      ## Complete the dates
+      mutate(
+        date_str = as.character(date),
+        year = year(date),
+        month = month(date),
+        mday = mday(date),
+        yday = yday(date),
+        year_month = str_c(year, month, sep="-"),
+        quarter = quarter(date)
+      ) %>%
       arrange(year, yday) %>%
+      group_by(year, quarter) %>%
+      mutate(
+        qday = rank(yday),
+        year_quarter = str_c(year, quarter, sep="-")
+      ) %>%
+      ## Convert amounts based type and complete with 0s
       mutate(
         Amount = ifelse(Transaction.Type == 'debit', Amount * -1, Amount),
         Amount = ifelse(is.na(Amount), 0, Amount)
       ) %>%
+      ## Calculate cummulatives
       group_by(year_quarter) %>%
       mutate(
         cum_quarter_cash_flow = cumsum(Amount),
@@ -204,17 +232,17 @@ moduleCashFlowQuarter <- function(input, output, session) {
   
   createDataTable <- reactive({
     
-    df3 <- crunchData()
+    df2 <- crunchData()
     
-    df_table <- df3 %>%
-      select(date, year, month, year_quarter, qday, Category, Description, Amount, Notes) %>%
-      mutate(
-        date = as.character(date),
-        year = as.character(year),
-        month = as.character(month),
-        year_quarter = as.character(year_quarter),
-        yday = as.character(qday)
-        ) %>%
+    df_table <- df2 %>%
+      select(date, year, month, year_quarter, qday, Category, Group = category_group, Type = category_type, Description, Amount, Notes) %>%
+      # mutate(
+      #   date = as.character(date),
+      #   year = as.character(year),
+      #   month = as.character(month),
+      #   year_quarter = as.character(year_quarter),
+      #   yday = as.character(qday)
+      #   ) %>%
       filter(!(is.na(Description))) %>%
       arrange(Amount)
     
@@ -240,15 +268,17 @@ moduleCashFlowQuarter <- function(input, output, session) {
   
   output$select_category_type <- renderUI({
     
-    choices_list <- c('All', 'Income', 'Spending', 'Giving')
-    selected_default <- 'All'
+    df_category_dim <- getDataCategoryDim()
+    
+    choices_list <- list("All Category Types", "Category Type" = c(unique(df_category_dim$category_type)))
+    selected_default <- setdiff(unique(df_category_dim$category_type), c("Ignore","Savings"))
     
     container <- selectizeInput(
       inputId = ns("select_category_type"),
       label = h4("Category Type:"),
       choices = choices_list,
       selected = selected_default,
-      multiple = FALSE
+      multiple = TRUE
     )
     
     return(container)
