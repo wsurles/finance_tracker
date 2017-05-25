@@ -9,14 +9,12 @@ moduleCashFlowQuarterUI <- function(id) {
       solidHeader = TRUE,
       collapsible = TRUE,
       fluidRow(
-        column(3, offset = 3, uiOutput(ns("select_category_type"))),
-        column(3, offset = 0, uiOutput(ns("select_category")))
+        column(4, offset = 0, align = 'center', uiOutput(ns("select_category_type"))),
+        column(4, offset = 0, align = 'center', uiOutput(ns("select_category")))
       )
-    ), 
+    ),
     fluidRow(
-      column(6, offset = 3, align = 'center',
-        uiOutput(ns("select_quarter"))
-      )
+      column(6, offset = 3, align = 'center', uiOutput(ns("select_quarter")))
     ),
     fluidRow(
       column(12, offset = 0, align = 'center',
@@ -41,113 +39,121 @@ moduleCashFlowQuarter <- function(input, output, session) {
   ##| Crunch Data Functions
   ##| --------------------------------------------
   
-  filterCategoryType <- reactive({
-    
-    validate(
-      need(!is.null(input$select_category_type), "Loading Data ...")
-    )
-    
-    df_trans <- getData()
-    
-    ##| Filter Category Type
-    
-    list_exclude_all <- c('Transfer',
-                          'Credit Card Payment',
-                          'Hide from Budgets & Trends',
-                          'Transfer for Cash Spending',
-                          'Cash & ATM',
-                          'Withdrawal',
-                          'Sell',
-                          'Buy',
-                          'Deposit',
-                          'Federal Tax', 
-                          'State Tax')
-  
-    list_include_income <- c('Income', 
-                             'Bonus', 
-                             'Interest Income', 
-                             'Paycheck', 
-                             'Reimbursement', 
-                             'Rental Income', 
-                             'Returned Purchase', 
-                             'Credit Card Cashback', 
-                             'Gift Received', 
-                             'Side Job')
-    
-    list_include_giving <- c('Charity',
-                             'Gift',
-                             'Church Tithe',
-                             'Missions Support')
-    
-    list_include_spending <- setdiff(
-      unique(df_trans$Category), 
-      c(list_exclude_all, list_include_income, list_include_giving)
-      )
-    
-    list_include_all <- setdiff(
-      unique(df_trans$Category), 
-      c(list_exclude_all)
-      )
-    
-    if (input$select_category_type == 'All') {
-      
-      list_include <- list_include_all
-    
-    } else if (input$select_category_type == 'Income') {
-      
-      list_include <- list_include_income
-    
-    } else if (input$select_category_type == 'Spending') {
-      
-      list_include <- list_include_spending
-    
-    } else if (input$select_category_type == 'Giving') {
-      
-      list_include <- list_include_giving
-    
-    }
-    
-    df_trans2 <- df_trans %>%
-      filter(Category %in% list_include)
-      
-    return(df_trans2)
-      
-  })
+  # filterCategoryType <- reactive({
+  #   
+  #   validate(
+  #     need(!is.null(input$select_category_type), "Loading Data ...")
+  #   )
+  #   
+  #   df_trans <- getData()
+  #   
+  #   ##| Filter Category Type
+  #   
+  #   list_exclude_all <- c('Transfer',
+  #                         'Credit Card Payment',
+  #                         'Hide from Budgets & Trends',
+  #                         'Transfer for Cash Spending',
+  #                         'Cash & ATM',
+  #                         'Withdrawal',
+  #                         'Sell',
+  #                         'Buy',
+  #                         'Deposit',
+  #                         'Federal Tax', 
+  #                         'State Tax')
+  # 
+  #   list_include_income <- c('Income', 
+  #                            'Bonus', 
+  #                            'Interest Income', 
+  #                            'Paycheck', 
+  #                            'Reimbursement', 
+  #                            'Rental Income', 
+  #                            'Returned Purchase', 
+  #                            'Credit Card Cashback', 
+  #                            'Gift Received', 
+  #                            'Side Job')
+  #   
+  #   list_include_giving <- c('Charity',
+  #                            'Gift',
+  #                            'Church Tithe',
+  #                            'Missions Support')
+  #   
+  #   list_include_spending <- setdiff(
+  #     unique(df_trans$Category), 
+  #     c(list_exclude_all, list_include_income, list_include_giving)
+  #     )
+  #   
+  #   list_include_all <- setdiff(
+  #     unique(df_trans$Category), 
+  #     c(list_exclude_all)
+  #     )
+  #   
+  #   if (input$select_category_type == 'All') {
+  #     
+  #     list_include <- list_include_all
+  #   
+  #   } else if (input$select_category_type == 'Income') {
+  #     
+  #     list_include <- list_include_income
+  #   
+  #   } else if (input$select_category_type == 'Spending') {
+  #     
+  #     list_include <- list_include_spending
+  #   
+  #   } else if (input$select_category_type == 'Giving') {
+  #     
+  #     list_include <- list_include_giving
+  #   
+  #   }
+  #   
+  #   df_trans2 <- df_trans %>%
+  #     filter(Category %in% list_include)
+  #     
+  #   return(df_trans2)
+  #     
+  # })
+  # 
   
   filterCategory <- reactive({
-    
+
     validate(
       need(!is.null(input$select_category), "Loading Data ...")
     )
-    
-    df_trans <- filterCategoryType()
-    
+
+    df_category_dim <- getDataCategoryDim()
+
     if (input$select_category == 'All Categories') {
-      
-      df_trans2 <- df_trans
-      
+
+      df_category_dim2 <- df_category_dim
+
     } else {
-      
-      df_trans2 <- df_trans %>%
-        filter(Category %in% input$select_category)
+
+      df_category_dim2 <- df_category_dim %>%
+        filter(category %in% input$select_category)
     }
     
-    return(df_trans2)
-  })
-  
-  filterQuarter <- reactive({
-    
-    validate(
-      need(!is.null(input$select_quarter), "Loading Data ...")
-    )
-    
-    df_dates <- getDates()
+    df_category_dim3 <- df_category_dim2 %>%
+      filter(
+        category_type %in% input$select_category_type
+      )
       
-    df_dates2 <- df_dates %>%
-      filter(year_quarter %in% input$select_quarter)
+    print(df_category_dim3)
     
-    return(df_dates2)
+    return(df_category_dim3)
   })
+  # 
+  # filterQuarter <- reactive({
+  #   
+  #   validate(
+  #     need(!is.null(input$select_quarter), "Loading Data ...")
+  #   )
+  #   
+  #   df_dates <- getDates()
+  #     
+  #   df_dates2 <- df_dates %>%
+  #     filter(year_quarter %in% input$select_quarter)
+  #   
+  #   return(df_dates2)
+  # })
     
   crunchData <- reactive({
     
@@ -155,22 +161,33 @@ moduleCashFlowQuarter <- function(input, output, session) {
     # df_dates <- filterQuarter()
     
     df_trans <- getDataTrans()
-    df_category_dim <- getDataCategoryDim()
+    df_category_dim <- filterCategory()
     df_dates <- getDataDates()
     
-    head(df_trans2)
+    validate(
+      need(nrow(df_category_dim) > 0, "No data returned from these filters")
+    )
+
+    comment <- function() {
+      
+      input <- list(
+        select_quarter = c("2017-2","2017-1")
+      )
+    }
     
     df_trans2 <- df_trans %>%
-      ## Join dates and category dimensions
-      left_join(df_category_dim, by=c("Category" = "category")) %>%
-      filter(
-        category_type %in% input$select_category_type
-      ) %>%
+      ## Join category dim and filter
+      right_join(df_category_dim, by=c("Category" = "category")) %>%
+      # filter(
+      #   category_type %in% input$select_category_type,
+      #   Category %in% input$select_category
+      # ) %>%
+      ## right_join to dates so all dates are present
       mutate(
         date = as.Date(Date, format = "%m/%d/%Y")
       ) %>%
       right_join(df_dates, by="date") %>%
-      ## Complete the dates
+      ## Complete the dates and filter
       mutate(
         date_str = as.character(date),
         year = year(date),
@@ -183,9 +200,10 @@ moduleCashFlowQuarter <- function(input, output, session) {
       arrange(year, yday) %>%
       group_by(year, quarter) %>%
       mutate(
-        qday = rank(yday),
+        qday = dense_rank(yday),
         year_quarter = str_c(year, quarter, sep="-")
       ) %>%
+      filter(year_quarter %in% input$select_quarter) %>%
       ## Convert amounts based type and complete with 0s
       mutate(
         Amount = ifelse(Transaction.Type == 'debit', Amount * -1, Amount),
@@ -199,6 +217,8 @@ moduleCashFlowQuarter <- function(input, output, session) {
       ) %>%
       data.frame()
       
+    head(df_trans2)
+    
     return(df_trans2)
   })
   
@@ -219,6 +239,7 @@ moduleCashFlowQuarter <- function(input, output, session) {
     
     n <- nPlot(cum_quarter_cash_flow ~ qday, data = df_plot, group = "year_quarter", type = 'lineChart')
     n$xAxis(axisLabel = 'Day of Quarter')
+    n$chart(forceY = c(0))
     n$chart(tooltipContent = "#!
           function(key, x, y, d){ 
             return '<h3>' + d.point.year_quarter + '</h3>' +
@@ -290,19 +311,27 @@ moduleCashFlowQuarter <- function(input, output, session) {
       need(!is.null(input$select_category_type), "Loading Data...")
     )
     
-    df_trans <- filterCategoryType()
+    df_category_dim <- getDataCategoryDim()
     
-    df_category <- df_trans %>% 
-      arrange(Category) %>% 
-      distinct(Category)
+    df_cat <- df_category_dim %>%
+      filter(category_type %in% input$select_category_type)
     
-    list_choices <- c('All Categories', df_category)
-    selected_default <- 'All Categories'
+    choices_list <- list("All Categories", "Category" = c(unique(df_category_dim$category)))
+    selected_default <- "All Categories"
     
+    # df_trans <- filterCategoryType()
+    # 
+    # df_category <- df_trans %>% 
+    #   arrange(Category) %>% 
+    #   distinct(Category)
+    # 
+    # list_choices <- c('All Categories', df_category)
+    # selected_default <- 'All Categories'
+    # 
     container <- selectizeInput(
       inputId = ns('select_category'),
       label = h4("Category:"),
-      choices = list_choices,
+      choices = choices_list,
       selected = selected_default,
       multiple = FALSE
     )
@@ -312,20 +341,41 @@ moduleCashFlowQuarter <- function(input, output, session) {
   
   output$select_quarter <- renderUI({
     
-    df_dates <- getDates()
-    df_trans <- getData()
+    df_trans <- getDataTrans()
     
-    df2 <- df_trans %>%
-      mutate(date = as.Date(Date, format = "%m/%d/%Y")) %>%
-      left_join(df_dates, by = "date") %>%
+    dates <- as.Date(df_trans$Date, format = "%m/%d/%Y")
+    min_date <- min(dates)
+    max_date <- max(dates)
+    
+    df_dates <- data.frame(date = seq(min_date, max_date, 1)) %>%
       mutate(
-        year = year(date),
-        quarter = quarter(date),
-        year_quarter = str_c(year, quarter, sep="-")
-      )
-      
-    choices_list <- sort(unique(df2$year_quarter), decreasing=T)
-    selected_default <- choices_list[1:2]
+        year_quarter = str_c(year(date), quarter(date), sep="-")
+      ) %>%
+      arrange(desc(date))
+    
+    choices_list <- unique(df_dates$year_quarter)
+    
+    selected_default <- c(
+      str_c(year(max_date), quarter(max_date), sep="-"),
+      str_c(year(max_date-90), quarter(max_date-90), sep="-")
+    )
+    
+    # max_date <- max(dates)
+    # 
+    # df_dates <- data.frame(date = seq(min_date, max_date, 1))
+    # 
+    # df2 <- df_trans %>%
+    #   mutate(date = as.Date(Date, format = "%m/%d/%Y")) %>%
+    #   left_join(df_dates, by = "date") %>%
+    #   mutate(
+    #     year = year(date),
+    #     quarter = quarter(date),
+    #     year_quarter = str_c(year, quarter, sep="-")
+    #   )
+    #   
+    # choices_list <- sort(unique(df2$year_quarter), decreasing=T)
+    # selected_default <- choices_list[1:2]
+    # 
     
     container <- selectizeInput(
       inputId = ns("select_quarter"),

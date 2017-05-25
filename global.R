@@ -53,9 +53,7 @@ getDataCategoryDim <- reactive({
 
 getDataDates <- reactive({
   
-  df_trans <- getData()
-  
-  str(df_trans)
+  df_trans <- getDataTrans()
 
   dates <- as.Date(df_trans$Date, format = "%m/%d/%Y")
   min_date <- min(dates) %>% year(.) %>% str_c(.,"-01-01") %>% as.Date(.)
