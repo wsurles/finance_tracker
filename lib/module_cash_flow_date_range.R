@@ -1,5 +1,5 @@
 
-moduleCashFlowMonthUI <- function(id) {
+moduleCashFlowQuarterUI <- function(id) {
   ns <- NS(id)
 
   tagList(
@@ -9,36 +9,24 @@ moduleCashFlowMonthUI <- function(id) {
       column(4, offset = 0, align = 'center', uiOutput(ns("select_category")))
     ),
     fluidRow(
-      column(6, offset = 3, align = 'center', uiOutput(ns("select_month")))
-    ),
-    ##--------------------------------------------------------------------------
-    hr(),
-    fluidRow(
-      column(12, offset = 0, align = 'center', h3("Cumulative Cash Flow by Month"))
+      column(4, offset = 4, align = 'center', uiOutput(ns("select_date_range")))
     ),
     fluidRow(
-      column(12, offset = 0, align = 'center', showOutput(ns("plot_cum_cash_flow"), "nvd3"))
-    ),
-    ##--------------------------------------------------------------------------
-    hr(),
-    fluidRow(
-      column(12, offset = 0, align = 'center', h3("Monthly Cash Flow by Month"))
+      column(12, offset = 0, align = 'center',
+        h3("Cumulative Cash Flow by Quarter"),
+        showOutput(ns("plot_cum_by_quarter"), "nvd3")
+      )
     ),
     fluidRow(
-      column(12, offset = 0, align = 'center', showOutput(ns("plot_monthly_cash_flow"), "nvd3"))
-    ),
-    ##--------------------------------------------------------------------------
-    hr(),
-    fluidRow(
-      column(12, offset = 0, align = 'center', h3("Table of Transactions"))
-    ),
-    fluidRow(
-      column(12, offset = 0, align = 'center', dataTableOutput(ns('table_transactions')))
+      column(12, align = 'center',
+        h3("Table of Transactions"),
+        dataTableOutput(ns('table_transactions'))
+      )
     )
   )
 }
 
-moduleCashFlowMonth <- function(input, output, session) {
+moduleCashFlowQuarter <- function(input, output, session) {
 
   ns <- session$ns
 
@@ -61,6 +49,7 @@ moduleCashFlowMonth <- function(input, output, session) {
                             } else {
                               input$select_category_group
                             }
+
     list_category <- if (input$select_category == 'All Categories') {
                         unique(df_category_dim$category)
                       } else {
@@ -75,6 +64,23 @@ moduleCashFlowMonth <- function(input, output, session) {
       )
 
     return(df_category_dim2)
+  })
+
+  filterDateRange <- reactive({
+
+    validate(
+      need(!is.null(input$select_date_range), "Loading Data ...")
+    )
+
+    df_dates <- getDataDates()
+
+    df_dates2 <- df_dates %>%
+      filter(
+        date >= input$select_date_range[1],
+        date <= input$select_date_range[2]
+      )
+
+    return(df_dates2)
   })
 
   crunchData <- reactive({
@@ -99,7 +105,7 @@ moduleCashFlowMonth <- function(input, output, session) {
       mutate(
         date_str = as.character(date),
         year = year(date),
-        month = str_pad(month(date), 2, pad = "0"),
+        month = month(date),
         mday = mday(date),
         yday = yday(date),
         year_month = str_c(year, month, sep="-"),
@@ -111,98 +117,62 @@ moduleCashFlowMonth <- function(input, output, session) {
         qday = dense_rank(yday),
         year_quarter = str_c(year, quarter, sep="-")
       ) %>%
-      filter(year_month %in% input$select_month) %>%
+      filter(year_quarter %in% input$select_quarter) %>%
       ## Convert amounts based type and complete with 0s
       mutate(
         Amount = ifelse(Transaction.Type == 'debit', Amount * -1, Amount),
         Amount = ifelse(is.na(Amount), 0, Amount)
       ) %>%
       ## Calculate cumulatives
-      group_by(year_month) %>%
+      group_by(year_quarter) %>%
       mutate(
-        cum_month_cash_flow = cumsum(Amount),
-        cum_month_cash_flow_str = paste0('$', prettyNum(round(cum_month_cash_flow), big.mark=",",scientific=F))
+        cum_quarter_cash_flow = cumsum(Amount),
+        cum_quarter_cash_flow_str = paste0('$', prettyNum(round(cum_quarter_cash_flow), big.mark=",",scientific=F))
       ) %>%
       data.frame()
 
     return(df_trans2)
   })
 
-  crunchDataMonth <- reactive({
-
-    df_trans2 <- crunchData()
-
-    df_months <- expand.grid(
-      year_month = unique(df_trans2$year_month),
-      year_month_group = unique(df_trans2$year_month)
-      )
-
-    df_trans3 <- df_trans2 %>%
-      mutate(year_month_group = year_month) %>%
-      group_by(year_month, year_month_group) %>%
-      summarize(
-        sum_cash_flow = sum(Amount)
-        ) %>%
-      right_join(df_months, by = c("year_month","year_month_group")) %>%
-      complete(year_month, year_month_group, fill = list(sum_cash_flow = 0)) %>%
-      data.frame()
-
-    return(df_trans3)
-  })
-
   ##| --------------------------------------------
   ##| Chart and Table Functions
   ##| --------------------------------------------
 
-  createPlotCumCashFlow <- reactive({
+  createPlotCumByQuarter <- reactive({
 
     df_trans2 <- crunchData()
 
     ## Select on the values I need in chart so it loads faster
     df_trans3 <- df_trans2 %>%
-      select(year_month, mday, date_str, cum_month_cash_flow, cum_month_cash_flow_str)
+      select(year_quarter, qday, date_str, cum_quarter_cash_flow, cum_quarter_cash_flow_str)
 
     ## Keep only the last value for each day so chart is smoother and loads faster
-    df_plot <- df_trans3[!duplicated(df_trans3[c("mday","year_month")], fromLast = T),] %>%
-      arrange(desc(year_month), mday)
-  
-    print(head(df_plot))
-    
-    n <- nPlot(cum_month_cash_flow ~ mday, data = df_plot, group = "year_month", type = 'lineChart')
-    n$xAxis(axisLabel = 'Day of Month')
+    df_plot <- df_trans3[!duplicated(df_trans3[c("qday","year_quarter")], fromLast = T),]
+
+    n <- nPlot(cum_quarter_cash_flow ~ qday, data = df_plot, group = "year_quarter", type = 'lineChart')
+    n$xAxis(axisLabel = 'Day of Quarter')
     n$chart(forceY = c(0))
     n$chart(tooltipContent = "#!
           function(key, x, y, d){
-            return '<h3>' + d.point.year_month + '</h3>' +
+            return '<h3>' + d.point.year_quarter + '</h3>' +
             '<p><b>' + d.point.date_str + '</b></p>' +
-            '<p><b>'  + d.point.cum_month_cash_flow_str + '</b></p>'
+            '<p><b>'  + d.point.cum_quarter_cash_flow_str + '</b></p>'
           }
           !#")
 
     return(n)
   })
 
-  createPlotMonthlyCashFlow <- reactive({
-
-    df_trans3 <- crunchDataMonth() %>%
-      arrange(desc(year_month_group))
-    
-    print(head(df_trans3))
-
-    n <- nPlot(sum_cash_flow ~ year_month, data = df_trans3, group = "year_month_group", type = 'multiBarChart')
-    n$chart(stacked = T)
-    n$xAxis(axisLabel = 'Year-Month')
-
-    return(n)
-  })
-
-  createDataTableTrans <- reactive({
+  createDataTable <- reactive({
 
     df2 <- crunchData()
 
+    print(head(df2))
+    print(str(df2))
+
     df_table <- df2 %>%
       filter(!(is.na(Description))) %>%
-      select(date, year, year_month, month, mday, Category, Group = category_group, Type = category_type, Description, Amount, Notes) %>%
+      select(date, year, year_quarter, qday, month, mday, Type = category_type, Group = category_group, Category, Description, Amount, Notes) %>%
       mutate(
         year = as.character(year),
         month = as.character(month)
@@ -297,7 +267,7 @@ moduleCashFlowMonth <- function(input, output, session) {
     return(container)
   })
 
-  output$select_month <- renderUI({
+  output$select_quarter <- renderUI({
 
     df_trans <- getDataTrans()
 
@@ -307,16 +277,16 @@ moduleCashFlowMonth <- function(input, output, session) {
 
     df_dates <- data.frame(date = seq(min_date, max_date, 1)) %>%
       mutate(
-        year_month = str_c(year(date), str_pad(month(date), 2, pad = "0"), sep="-")
+        year_quarter = str_c(year(date), quarter(date), sep="-")
       ) %>%
       arrange(desc(date))
 
-    choices_list <- unique(df_dates$year_month)
+    choices_list <- unique(df_dates$year_quarter)
     selected_default <- choices_list[1:min(3, length(choices_list))]
 
     container <- selectizeInput(
-      inputId = ns("select_month"),
-      label = h4("Month:"),
+      inputId = ns("select_quarter"),
+      label = h4("Quarter:"),
       choices = choices_list,
       selected = selected_default,
       multiple = TRUE
@@ -329,15 +299,11 @@ moduleCashFlowMonth <- function(input, output, session) {
   ##| Render Output Functions
   ##| --------------------------------------------
 
-  output$plot_cum_cash_flow <- renderChart2({
-    createPlotCumCashFlow()
-  })
-
-  output$plot_monthly_cash_flow <- renderChart2({
-    createPlotMonthlyCashFlow()
+  output$plot_cum_by_quarter <- renderChart2({
+    createPlotCumByQuarter()
   })
 
   output$table_transactions <- renderDataTable({
-    createDataTableTrans()
+    createDataTable()
   })
 }

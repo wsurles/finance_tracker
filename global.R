@@ -18,6 +18,7 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 library(DT)
+library(sunburstR)
 
 source('lib/module_cash_flow_year.R', local = T)
 source('lib/module_cash_flow_quarter.R', local = T)

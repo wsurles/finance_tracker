@@ -9,26 +9,31 @@ moduleCashFlowYearUI <- function(id) {
       column(4, offset = 0, align = 'center', uiOutput(ns("select_category")))
     ),
     fluidRow(
-      column(6, offset = 3, align = 'center', uiOutput(ns("select_year")))
+      column(4, offset = 4, align = 'center', uiOutput(ns("select_year")))
     ),
-    fluidRow(
-      column(12, offset = 0, align = 'center',
-        h3("Cumulative Cash Flow by Year"),
-        showOutput(ns("plot_cum_by_year"), "nvd3")
-      )
-    ),
+    ##--------------------------------------------------------------------------
     hr(),
-    # fluidRow(
-    #   column(12, offset = 0, align = 'center',
-    #     h3("Monthly Cash Flow by Year"),
-    #     showOutput(ns("plot_monthly_by_year"), "nvd3")
-    #   )
-    # ),
     fluidRow(
-      column(12, align = 'center',
-        h3("Table of Transactions"),
-        dataTableOutput(ns('table_transactions'))
-      )
+      column(12, offset = 0, align = 'center', h3("Cumulative Cash Flow by Year"))
+    ),
+    fluidRow(
+      column(12, offset = 0, align = 'center', showOutput(ns("plot_cum_cash_flow"), "nvd3"))
+    ),
+    ##--------------------------------------------------------------------------
+    hr(),
+    fluidRow(
+      column(12, offset = 0, align = 'center', h3("Monthly Cash Flow by Year"))
+    ),
+    fluidRow(
+      column(12, offset = 0, align = 'center', showOutput(ns("plot_monthly_cash_flow"), "nvd3"))
+    ),
+    ##--------------------------------------------------------------------------
+    hr(),
+    fluidRow(
+      column(12, offset = 0, align = 'center', h3("Table of Transactions"))
+    ),
+    fluidRow(
+      column(12, offset = 0, align = 'center', dataTableOutput(ns('table_transactions')))
     )
   )
 }
@@ -72,7 +77,7 @@ moduleCashFlowYear <- function(input, output, session) {
     return(df_category_dim2)
   })
 
-  crunchData <- reactive({
+  crunchDataCum <- reactive({
 
     df_trans <- getDataTrans()
     df_category_dim <- filterCategory()
@@ -94,7 +99,7 @@ moduleCashFlowYear <- function(input, output, session) {
       mutate(
         date_str = as.character(date),
         year = year(date),
-        month = month(date),
+        month = str_pad(month(date), 2, pad = "0"),
         mday = mday(date),
         yday = yday(date),
         year_month = str_c(year, month, sep="-"),
@@ -123,20 +128,43 @@ moduleCashFlowYear <- function(input, output, session) {
     return(df_trans2)
   })
 
+  crunchDataMonth <- reactive({
+
+    df_trans2 <- crunchDataCum()
+
+    df_months <- expand.grid(
+      year = unique(df_trans2$year),
+      year_month = unique(df_trans2$year_month)
+      )
+
+    df_trans3 <- df_trans2 %>%
+      group_by(year, year_month) %>%
+      summarize(
+        sum_cash_flow = sum(Amount)
+        ) %>%
+      right_join(df_months, by = c("year","year_month")) %>%
+      complete(year, year_month, fill = list(sum_cash_flow = 0)) %>%
+      data.frame()
+
+    return(df_trans3)
+  })
+
+
   ##| --------------------------------------------
   ##| Chart and Table Functions
   ##| --------------------------------------------
 
-  createPlotCumByYear <- reactive({
+  createPlotCumCashFlow <- reactive({
 
-    df_trans2 <- crunchData()
+    df_trans2 <- crunchDataCum()
 
     ## Select on the values I need in chart so it loads faster
     df_trans3 <- df_trans2 %>%
       select(year, yday, date_str, cum_year_cash_flow, cum_year_cash_flow_str)
 
     ## Keep only the last value for each day so chart is smoother and loads faster
-    df_plot <- df_trans3[!duplicated(df_trans3[c("yday","year")], fromLast = T),]
+    df_plot <- df_trans3[!duplicated(df_trans3[c("yday","year")], fromLast = T),] %>%
+      arrange(desc(year), yday)
 
     n <- nPlot(cum_year_cash_flow ~ yday, data = df_plot, group = "year", type = 'lineChart')
     n$xAxis(axisLabel = 'Day of Year')
@@ -165,37 +193,29 @@ moduleCashFlowYear <- function(input, output, session) {
     return(n)
   })
 
-  # createPlotTotalSavingsMonth <- reactive({
-  #
-  #   df_trans2 <- crunchData()
-  #
-  #   df_trans3 <- df_trans2 %>%
-  #     group_by(year, month) %>%
-  #     summarize(
-  #       sum_cash_flow = sum(Amount)
-  #     )
-  #
-  #   grid <- expand.grid(year = unique(df_trans3$year), month = as.numeric(seq(1:12)))
-  #   df <- merge(grid, df_trans3, by=c("year","month"), all.x = T)
-  #   df[is.na(df)] <- 0
-  #   df <- arrange(df, year, month)
-  #
-  #   n <- nPlot(sum_cash_flow ~ month, data = df, group = "year", type = 'multiBarChart')
-  #
-  #   unique_year <- unique(df$year)
-  #   exclude_year <- unique_year[unique_year != tail(unique_year,1)]
-  #   n$set(disabled = exclude_year)
-  #
-  #   return(n)
-  # })
+  createPlotMonthlyCashFlow <- reactive({
 
-  createDataTable <- reactive({
+    df_trans3 <- crunchDataMonth() %>%
+      arrange(desc(year))
 
-    df2 <- crunchData()
+    n <- nPlot(sum_cash_flow ~ year_month, data = df_trans3, group = "year", type = 'multiBarChart')
+    n$chart(stacked = T)
+    n$xAxis(axisLabel = 'Year-Month')
+
+    return(n)
+  })
+
+  createDataTableTrans <- reactive({
+
+    df2 <- crunchDataCum()
 
     df_table <- df2 %>%
-      select(date , year, month, Category, Group = category_group, Type = category_type, Description, Amount, Notes) %>%
       filter(!(is.na(Description))) %>%
+      select(date, year, month, mday, Category, Group = category_group, Type = category_type, Description, Amount, Notes) %>%
+      mutate(
+        year = as.character(year),
+        month = as.character(month)
+      ) %>%
       arrange(Amount)
 
     dt <- datatable(
@@ -316,20 +336,15 @@ moduleCashFlowYear <- function(input, output, session) {
   ##| Render Output Functions
   ##| --------------------------------------------
 
-  output$plot_cum_by_year <- renderChart2({
-
-    n <- createPlotCumByYear()
-    return(n)
+  output$plot_cum_cash_flow <- renderChart2({
+    createPlotCumCashFlow()
   })
 
-  # output$plot_monthly_by_year <- renderChart2({
-  #
-  #   n <- createPlotTotalSavingsMonth()
-  #   return(n)
-  # })
+  output$plot_monthly_cash_flow <- renderChart2({
+    createPlotMonthlyCashFlow()
+  })
 
   output$table_transactions <- renderDataTable({
-
-    createDataTable()
+    createDataTableTrans()
   })
 }
