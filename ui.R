@@ -4,7 +4,7 @@ shinyUI(
     dashboardHeader(title = 'Surlygon Finances'),
     dashboardSidebar(
       sidebarMenu(
-        menuItem("Load Transactions", tabName = 'load_transactions'),
+        menuItem("Upload Data", tabName = 'upload_data'),
         menuItem("Cash Flow",
           menuSubItem("By Year", tabName = 'cash_flow_year'),
           menuSubItem("By Quarter", tabName = 'cash_flow_quarter'),
@@ -16,7 +16,7 @@ shinyUI(
     dashboardBody(
       includeCSS("www/custom.css"),
       tabItems(
-        tabItem(tabName = "load_transactions", uiOutput("ui_upload")),
+        tabItem(tabName = "upload_data", uiOutput("upload_data")),
         tabItem(tabName = "cash_flow_year", moduleCashFlowYearUI("year")),
         tabItem(tabName = "cash_flow_quarter", moduleCashFlowQuarterUI("quarter")),
         tabItem(tabName = "cash_flow_month", moduleCashFlowMonthUI("month")),

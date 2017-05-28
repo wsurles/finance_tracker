@@ -20,6 +20,11 @@ library(stringr)
 library(DT)
 library(sunburstR)
 
+# source('lib/module_upload_data.R', local = T)
+# source('lib/module_load_csv.R', local = T)
+# source('lib/ui_upload_data.R', local = T)
+# source('lib/server_upload_data.R', local = T)
+
 source('lib/module_cash_flow_year.R', local = T)
 source('lib/module_cash_flow_quarter.R', local = T)
 source('lib/module_cash_flow_month.R', local = T)
@@ -28,11 +33,11 @@ source('lib/module_cash_flow_category.R', local = T)
 Sys.setenv(TZ='GMT')
 
 ##| Convert R dates to javascript dates for use in D3 charts
-to_jsdate <- function(date_){ 
-  d <- as.Date(date_) 
-  d <- as.POSIXct(format(d, tz="GMT"), origin="1970-01-01") 
+to_jsdate <- function(date_){
+  d <- as.Date(date_)
+  d <- as.POSIXct(format(d, tz="GMT"), origin="1970-01-01")
   d <- as.numeric(d)
-  d <- d * 1000 
+  d <- d * 1000
 }
 
 
@@ -40,49 +45,72 @@ to_jsdate <- function(date_){
 ##| Get Data Functions
 ##| --------------------------------------------
 
-getDataTrans <- reactive({
-  
-  df_trans <- read.csv('data/transactions.csv', stringsAsFactors = F)
-  
-})
+# getDataTrans <- reactive({
+#
+#   df_trans <- read.csv('data/transactions.csv', stringsAsFactors = F)
+#
+# })
 
-getDataCategoryDim <- reactive({
-  
-  df_category_dim <- read.csv('data/category_dimension - Sheet1.csv', stringsAsFactors = F)
-  
-})
+# getDataTrans <- reactive({
+#
+#   print(input$file_transactions)
+#
+#   validate(
+#     need(!is.null(input$file_transactions), "Please Load a csv file of transaction data.")
+#   )
+#
+#   df_trans <- read.csv(input$file_transactions$datapath, stringsAsFactors = F)
+#
+#   return(df_trans)
+# })
 
-getDataDates <- reactive({
-  
-  df_trans <- getDataTrans()
+# getDataTrans <- reactive({
+#   print("trying to get data")
+#
+#   print(input$data-select_file_trans)
+#
+#   df_trans <<- read.csv(input$data-select_file_trans$datapath, stringsAsFactors = F)
+#
+#   return(df_trans)
+# })
 
-  dates <- as.Date(df_trans$Date, format = "%m/%d/%Y")
-  min_date <- min(dates) %>% year(.) %>% str_c(.,"-01-01") %>% as.Date(.)
-  max_date <- max(dates) %>% year(.) %>% str_c(.,"-12-31") %>% as.Date(.)
-  
-  df_dates <- data.frame(date = seq(min_date, max_date, 1))
-  
-  # unique_years <- 
-  #   df_trans$Date %>%
-  #   as.Date(., format = "%m/%d/%Y") %>%
-  #   year(.) %>%
-  #   unique(.)
-  
-  # df_dates <- expand.grid(year = unique_years, yday = seq(1:366)) %>%
-  #   mutate(
-  #     date = as.Date(paste0(year,'-',yday), format = "%Y-%j"),
-  #     date_str = as.character(date),
-  #     month = month(date),
-  #     mday = mday(date),
-  #     year_month = str_c(year, month, sep="-"),
-  #     quarter = quarter(date)
-  #   ) %>%
-  #   group_by(year, quarter) %>%
-  #   mutate(
-  #     qday = rank(yday),
-  #     year_quarter = str_c(year, quarter, sep="-")
-  #   ) %>%
-  #   data.frame()
-  # 
-  return(df_dates)
-})
+# getDataCategoryDim <- reactive({
+#
+#   df_category_dim <- read.csv('data/category_dimension - Sheet1.csv', stringsAsFactors = F)
+#
+# })
+#
+# getDataDates <- reactive({
+#
+#   df_trans <- getDataTrans()
+#
+#   dates <- as.Date(df_trans$Date, format = "%m/%d/%Y")
+#   min_date <- min(dates) %>% year(.) %>% str_c(.,"-01-01") %>% as.Date(.)
+#   max_date <- max(dates) %>% year(.) %>% str_c(.,"-12-31") %>% as.Date(.)
+#
+#   df_dates <- data.frame(date = seq(min_date, max_date, 1))
+#
+#   # unique_years <-
+#   #   df_trans$Date %>%
+#   #   as.Date(., format = "%m/%d/%Y") %>%
+#   #   year(.) %>%
+#   #   unique(.)
+#
+#   # df_dates <- expand.grid(year = unique_years, yday = seq(1:366)) %>%
+#   #   mutate(
+#   #     date = as.Date(paste0(year,'-',yday), format = "%Y-%j"),
+#   #     date_str = as.character(date),
+#   #     month = month(date),
+#   #     mday = mday(date),
+#   #     year_month = str_c(year, month, sep="-"),
+#   #     quarter = quarter(date)
+#   #   ) %>%
+#   #   group_by(year, quarter) %>%
+#   #   mutate(
+#   #     qday = rank(yday),
+#   #     year_quarter = str_c(year, quarter, sep="-")
+#   #   ) %>%
+#   #   data.frame()
+#   #
+#   return(df_dates)
+# })
