@@ -38,7 +38,8 @@ moduleCashFlowQuarterUI <- function(id) {
   )
 }
 
-moduleCashFlowQuarter <- function(input, output, session) {
+moduleCashFlowQuarter <- function(input, output, session,
+  getDataTrans, getDataCategoryDim, getDataDates) {
 
   ns <- session$ns
 

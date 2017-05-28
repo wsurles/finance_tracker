@@ -61,7 +61,8 @@ moduleCashFlowCategoryUI <- function(id) {
   )
 }
 
-moduleCashFlowCategory <- function(input, output, session) {
+moduleCashFlowCategory <- function(input, output, session,
+  getDataTrans, getDataCategoryDim, getDataDates) {
 
   ns <- session$ns
 
