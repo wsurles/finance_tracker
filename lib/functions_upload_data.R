@@ -11,7 +11,7 @@ output$upload_data <- renderUI({
       column(4, offset = 4, align = 'center', uiOutput("select_file_transactions"))
     ),
     fluidRow(
-      column(4, offset = 4, align ='center', h2("Sample of loaded transaction data:"))
+      column(4, offset = 4, align ='center', h4("Sample of loaded transaction data:"))
     ),
     fluidRow(
       column(6, offset = 3, align ='center', verbatimTextOutput("sample_transactions_csv"))
@@ -39,7 +39,7 @@ output$upload_data <- renderUI({
       column(4, offset = 4, align = 'center', uiOutput("select_file_categories"))
     ),
     fluidRow(
-      column(4, offset = 4, align ='center', h2("Sample of categories data:"))
+      column(4, offset = 4, align ='center', h4("Sample of categories data:"))
     ),
     fluidRow(
       column(6, offset = 3, align ='center', verbatimTextOutput("sample_categories_csv"))
@@ -73,8 +73,19 @@ getDataCategoryDim <- reactive({
     df_category <- read.csv(input$file_categories$datapath, stringsAsFactors = F)
 
   }
+  
+  ## Fill in any missing categories that are in the transactions data but not in the categories data
+  ## I will give them group and type of "unknown"
+  
+  df_category_trans <- data.frame(category = unique(df_trans$Category),
+                                  stringsAsFactors = F)
+  
+  df_category2 <- df_category %>%
+    right_join(df_category_trans, by = "category") %>%
+    complete(category, fill = list(category_group = "Unknown", category_type = "Unknown")) %>%
+    data.frame()
 
-  return(df_category)
+  return(df_category2)
 })
 
 getDataDates <- reactive({
