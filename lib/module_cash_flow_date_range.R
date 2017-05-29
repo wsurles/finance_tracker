@@ -167,9 +167,6 @@ moduleCashFlowQuarter <- function(input, output, session) {
 
     df2 <- crunchData()
 
-    print(head(df2))
-    print(str(df2))
-
     df_table <- df2 %>%
       filter(!(is.na(Description))) %>%
       select(date, year, year_quarter, qday, month, mday, Type = category_type, Group = category_group, Category, Description, Amount, Notes) %>%

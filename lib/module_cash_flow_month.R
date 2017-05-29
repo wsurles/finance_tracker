@@ -9,7 +9,7 @@ moduleCashFlowMonthUI <- function(id) {
       column(4, offset = 0, align = 'center', uiOutput(ns("select_category")))
     ),
     fluidRow(
-      column(6, offset = 3, align = 'center', uiOutput(ns("select_month")))
+      column(4, offset = 4, align = 'center', uiOutput(ns("select_month")))
     ),
     ##--------------------------------------------------------------------------
     hr(),
@@ -167,8 +167,6 @@ moduleCashFlowMonth <- function(input, output, session,
     df_plot <- df_trans3[!duplicated(df_trans3[c("mday","year_month")], fromLast = T),] %>%
       arrange(desc(year_month), mday)
 
-    print(head(df_plot))
-
     n <- nPlot(cum_month_cash_flow ~ mday, data = df_plot, group = "year_month", type = 'lineChart')
     n$xAxis(axisLabel = 'Day of Month')
     n$chart(forceY = c(0))
@@ -187,8 +185,6 @@ moduleCashFlowMonth <- function(input, output, session,
 
     df_trans3 <- crunchDataMonth() %>%
       arrange(desc(year_month_group))
-
-    print(head(df_trans3))
 
     n <- nPlot(sum_cash_flow ~ year_month, data = df_trans3, group = "year_month_group", type = 'multiBarChart')
     n$chart(stacked = T)

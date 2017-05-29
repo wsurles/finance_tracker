@@ -10,5 +10,4 @@ shinyServer(function(input, output, session) {
   callModule(moduleCashFlowMonth, "month", getDataTrans, getDataCategoryDim, getDataDates)
   callModule(moduleCashFlowCategory, "category", getDataTrans, getDataCategoryDim, getDataDates)
 
-
 })

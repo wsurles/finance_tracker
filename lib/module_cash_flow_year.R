@@ -83,8 +83,6 @@ moduleCashFlowYear <- function(input, output, session,
   crunchDataCum <- reactive({
 
     df_trans <- getDataTrans()
-    print("trans test in year module")
-    print(head(df_trans))
     df_category_dim <- filterCategory()
     df_dates <- getDataDates()
 

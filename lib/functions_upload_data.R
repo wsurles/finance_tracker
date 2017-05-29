@@ -5,19 +5,44 @@
 output$upload_data <- renderUI({
   tagList(
     fluidRow(
-      column(4, offset = 4, align ='center', h3("Upload Transactions:"))
+      column(4, offset = 4, align ='center', h2("Upload Transactions:"))
     ),
     fluidRow(
       column(4, offset = 4, align = 'center', uiOutput("select_file_transactions"))
     ),
     fluidRow(
-      column(12, offset = 0, align ='center', verbatimTextOutput("sample_transactions_csv"))
+      column(4, offset = 4, align ='center', h2("Sample of loaded transaction data:"))
+    ),
+    fluidRow(
+      column(6, offset = 3, align ='center', verbatimTextOutput("sample_transactions_csv"))
+    ),
+    ##--------------------------------------------------------------------------
+    hr(),
+    fluidRow(
+      column(4, offset = 4, align ='center', h2("Upload Custom Categories:"))
+    ),
+    fluidRow(
+      column(4, offset = 4, align ='center',
+        h5("The default mint.com categories have already been loaded for you.
+        If you want to add more categories or customize the categories,
+        use the 'Download Categories' button below to get the categories csv file.
+        Add and customize your categories then load them here."))
+    ),
+    fluidRow(
+      column(12, offset = 0, align ='center',
+        downloadButton('button_download_categories',
+          label = "Download Default Categories"
+        )
+      )
     ),
     fluidRow(
       column(4, offset = 4, align = 'center', uiOutput("select_file_categories"))
     ),
     fluidRow(
-      column(12, offset = 0, align ='center', verbatimTextOutput("sample_categories_csv"))
+      column(4, offset = 4, align ='center', h2("Sample of categories data:"))
+    ),
+    fluidRow(
+      column(6, offset = 3, align ='center', verbatimTextOutput("sample_categories_csv"))
     )
   )
 })
@@ -39,11 +64,15 @@ getDataTrans <- reactive({
 
 getDataCategoryDim <- reactive({
 
-  validate(
-    need(!is.null(input$file_categories), "Please load categories.csv")
-  )
+  if (is.null(input$file_categories)) {
 
-  df_category <- read.csv(input$file_categories$datapath, stringsAsFactors = F)
+    df_category <- read.csv('data/category_dimension_defaults.csv', stringsAsFactors = F)
+
+  } else {
+
+    df_category <- read.csv(input$file_categories$datapath, stringsAsFactors = F)
+
+  }
 
   return(df_category)
 })
@@ -51,8 +80,6 @@ getDataCategoryDim <- reactive({
 getDataDates <- reactive({
 
   df_trans <- getDataTrans()
-  print("cha brah")
-  print(head(df_trans))
 
   dates <- as.Date(df_trans$Date, format = "%m/%d/%Y")
   min_date <- min(dates) %>% year(.) %>% str_c(.,"-01-01") %>% as.Date(.)
@@ -84,7 +111,7 @@ output$select_file_categories <- renderUI({
 
   container <- fileInput(
     inputId = 'file_categories',
-    label = 'load categories.csv',
+    label = '',
     multiple = F,
     accept = c('csv')
   )
@@ -93,22 +120,35 @@ output$select_file_categories <- renderUI({
 
 })
 
+output$button_download_categories <- downloadHandler(
+
+  filename = function() {
+    "category_dimension_defaults.csv"
+  },
+  content = function(file) {
+    write.csv(getDataCategoryDim(), file)
+  }
+)
+
 ##| --------------------------------------------
 ##| Render Output Functions
 ##| --------------------------------------------
 
 output$sample_transactions_csv <- renderPrint({
 
-  df_trans <- getDataTrans()
+  df <- getDataTrans() %>%
+    head(20) %>%
+    mutate(Original.Description = str_trunc(Original.Description, 25, side = "right"))
 
-  return(head(df_trans))
+  return(df)
 
 })
 
 output$sample_categories_csv <- renderPrint({
 
-  df_category_dim <- getDataCategoryDim()
+  df <- getDataCategoryDim() %>%
+    head(20)
 
-  return(head(df_category_dim))
+  return(df)
 
 })
