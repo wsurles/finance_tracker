@@ -1,0 +1,19 @@
+/*Custom Styling*/
+
+/*Layout*/
+
+.main-header .logo {
+  padding: 0px;
+}
+
+.content-wrapper,
+.right-side {
+  background-color: #ffffff;
+}
+
+
+/*Controls*/
+
+.shiny-input-container:not(.shiny-input-container-inline) {
+  width: 100%;
+}

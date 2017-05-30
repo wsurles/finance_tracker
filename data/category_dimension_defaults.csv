@@ -1,0 +1,117 @@
+category,category_group,category_type
+Auto & Transport,Auto & Transport,Spending
+Auto Insurance,Auto & Transport,Spending
+Auto Payment,Auto & Transport,Spending
+Gas & Fuel,Auto & Transport,Spending
+License/Registration,Auto & Transport,Spending
+Parking,Auto & Transport,Spending
+Public Transportation,Auto & Transport,Spending
+Service & Parts,Auto & Transport,Spending
+Bills & Utilities,Bills & Utilities,Spending
+Home Phone,Bills & Utilities,Spending
+Internet,Bills & Utilities,Spending
+Mobile Phone,Bills & Utilities,Spending
+Television,Bills & Utilities,Spending
+Utilities,Bills & Utilities,Spending
+Advertising,Business Services,Spending
+Business Services,Business Services,Spending
+Legal,Business Services,Spending
+Office Supplies,Business Services,Spending
+Printing,Business Services,Spending
+Shipping,Business Services,Spending
+Books & Supplies,Education,Spending
+Education,Education,Spending
+Student Loan,Education,Spending
+Tuition,Education,Spending
+Amusement,Entertainment,Spending
+Arts,Entertainment,Spending
+Entertainment,Entertainment,Spending
+Movies & DVDs,Entertainment,Spending
+Music,Entertainment,Spending
+Newspapers & Magazines,Entertainment,Spending
+ATM Fee,Fees & Charges,Spending
+Bank Fee,Fees & Charges,Spending
+Fees & Charges,Fees & Charges,Spending
+Finance Charge,Fees & Charges,Spending
+Late Fee,Fees & Charges,Spending
+Service Fee,Fees & Charges,Spending
+Trade Commisions,Fees & Charges,Spending
+Financial,Financial,Spending
+Financial Advisor,Financial,Spending
+Life Insurance,Financial,Spending
+Alcohol & Bars,Food & Dining,Spending
+Coffee Shops,Food & Dining,Spending
+Fast Food,Food & Dining,Spending
+Food & Dining,Food & Dining,Spending
+Groceries,Food & Dining,Spending
+Restaurants,Food & Dining,Spending
+Charity,Gifts and Donations,Giving
+Gift,Gifts and Donations,Giving
+Gifts and Donations,Gifts and Donations,Giving
+Dentist,Health & Fitness,Spending
+Doctor,Health & Fitness,Spending
+Eyecare,Health & Fitness,Spending
+Gym,Health & Fitness,Spending
+Health & Fitness,Health & Fitness,Spending
+Health Insurance,Health & Fitness,Spending
+Pharmacy,Health & Fitness,Spending
+Sports,Health & Fitness,Spending
+Hide from Budgets & Trends,Hide from Budgets & Trends,Ignore
+Furnishings,Home,Spending
+Home,Home,Spending
+Home Improvement,Home,Spending
+Home Insurance,Home,Spending
+Home Services,Home,Spending
+Home Supplies,Home,Spending
+House Cleaning,Home,Spending
+Lawn & Garden,Home,Spending
+Mortgage & Rent,Home,Spending
+Bonus,Income,Income
+Gift Received,Income,Income
+Income,Income,Income
+Interest Income,Income,Income
+Paycheck,Income,Income
+Reimbursement,Income,Income
+Rental Income,Income,Income
+Returned Purchase,Income,Income
+Investments,Investments,Savings
+Allowance,Kids,Spending
+Baby Supplies,Kids,Spending
+Babysitter & Daycare,Kids,Spending
+Child Support,Kids,Spending
+Kids,Kids,Spending
+Kids Activities,Kids,Spending
+Toys,Kids,Spending
+Misc Expenses,Misc Expenses,Spending
+Hair,Personal Care,Spending
+Laundry,Personal Care,Spending
+Personal Care,Personal Care,Spending
+Spa & Massage,Personal Care,Spending
+Pet Food & Supplies,Pets,Spending
+Pet Grooming,Pets,Spending
+Pet Insurance,Pets,Spending
+Pets,Pets,Spending
+Veterinary,Pets,Spending
+Books,Shopping,Spending
+Clothing,Shopping,Spending
+Electronics & Software,Shopping,Spending
+Hobbies,Shopping,Spending
+Shopping,Shopping,Spending
+Sporting Goods,Shopping,Spending
+Federal Tax,Taxes,Taxes
+Local Tax,Taxes,Taxes
+Property Tax,Taxes,Taxes
+Sales Tax,Taxes,Taxes
+State Tax,Taxes,Taxes
+Taxes,Taxes,Taxes
+Credit Card Payment,Transfer,Ignore
+Transfer,Transfer,Ignore
+Transfer for Cash Spending,Transfer,Ignore
+Air Travel,Travel,Spending
+Hotel,Travel,Spending
+Rental Car & Taxi,Travel,Spending
+Travel,Travel,Spending
+Vacation,Travel,Spending
+Cash & ATM,Uncategorized,Spending
+Check,Uncategorized,Spending
+Uncategorized,Uncategorized,Spending
