@@ -43,8 +43,6 @@ moduleCashFlowYear <- function(input, output, session,
 
   ns <- session$ns
 
-  # getDataTrans <- callModule(csvFile, "transactions")
-
   ##| --------------------------------------------
   ##| Crunch Data Functions
   ##| --------------------------------------------
@@ -261,10 +259,6 @@ moduleCashFlowYear <- function(input, output, session,
 
   output$select_category_group <- renderUI({
 
-    validate(
-      need(!is.null(input$select_category_type), "Loading Data...")
-    )
-
     df_category_dim <- getDataCategoryDim()
 
     df_cat <- df_category_dim %>%
@@ -285,10 +279,6 @@ moduleCashFlowYear <- function(input, output, session,
   })
 
   output$select_category <- renderUI({
-
-    validate(
-      need(!is.null(input$select_category_type), "Loading Data...")
-    )
 
     df_category_dim <- getDataCategoryDim()
 

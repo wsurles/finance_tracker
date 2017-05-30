@@ -246,10 +246,6 @@ moduleCashFlowQuarter <- function(input, output, session,
 
   output$select_category_group <- renderUI({
 
-    validate(
-      need(!is.null(input$select_category_type), "Loading Data...")
-    )
-
     df_category_dim <- getDataCategoryDim()
 
     df_cat <- df_category_dim %>%
@@ -270,10 +266,6 @@ moduleCashFlowQuarter <- function(input, output, session,
   })
 
   output$select_category <- renderUI({
-
-    validate(
-      need(!is.null(input$select_category_type), "Loading Data...")
-    )
 
     df_category_dim <- getDataCategoryDim()
 
