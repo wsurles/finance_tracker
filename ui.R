@@ -1,22 +1,27 @@
 
 shinyUI(
-	
-  navbarPage(
-  
-    id = "nbp",
-	title = "Finance", 
-	theme = "bootstrap.css",
-    collapsable = TRUE,
-    footer = fluidRow(hr(),
-              column(12, offset = 0, 
-                span(strong("CONFIDENTIAL"), style = "font-family:arial;color:black;font-size:22px;"))),
-    
-    tabPanel("Upload", value = "upload", uiOutput("ui_upload")),
-    tabPanel("Net Worth", value = "net_worth", uiOutput("ui_net_worth")),
-    tabPanel("Savings", value = "savings", uiOutput("ui_savings")),
-    tabPanel("Income", value = "income", uiOutput("ui_income")),
-    tabPanel("Spending", value = "spending", uiOutput("ui_spending")),
-    tabPanel("Giving", value = "giving", uiOutput("ui_giving"))
-  
-	)
+  dashboardPage(
+    dashboardHeader(title = 'Surlygon Finances'),
+    dashboardSidebar(
+      sidebarMenu(
+        menuItem("Upload Data", tabName = 'upload_data'),
+        menuItem("Cash Flow",
+          menuSubItem("By Year", tabName = 'cash_flow_year'),
+          menuSubItem("By Quarter", tabName = 'cash_flow_quarter'),
+          menuSubItem("By Month", tabName = 'cash_flow_month'),
+          menuSubItem("By Category", tabName = 'cash_flow_category')
+        )
+      )
+    ),
+    dashboardBody(
+      includeCSS("www/custom.css"),
+      tabItems(
+        tabItem(tabName = "upload_data", uiOutput("upload_data")),
+        tabItem(tabName = "cash_flow_year", moduleCashFlowYearUI("year")),
+        tabItem(tabName = "cash_flow_quarter", moduleCashFlowQuarterUI("quarter")),
+        tabItem(tabName = "cash_flow_month", moduleCashFlowMonthUI("month")),
+        tabItem(tabName = "cash_flow_category", moduleCashFlowCategoryUI("category"))
+      )
+    )
+  )
 )

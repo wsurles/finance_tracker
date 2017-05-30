@@ -15,3 +15,7 @@ vignettes/*.pdf
 
 # shiny apps deploy files
 shinyapps/
+<<<<<<< HEAD
+=======
+.Rproj.user
+>>>>>>> aa2a81a206dee492d8053150fd0937dbaab1d992
